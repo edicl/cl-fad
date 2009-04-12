@@ -1,0 +1,243 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html> 
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <title>CL-FAD - A portable pathname library for Common Lisp</title>
+  <style type="text/css">
+  pre { padding:5px; background-color:#e0e0e0 }
+  h3, h4 { text-decoration: underline; }
+  a { text-decoration: none; padding: 1px 2px 1px 2px; }
+  a:visited { text-decoration: none; padding: 1px 2px 1px 2px; }
+  a:hover { text-decoration: none; padding: 1px 1px 1px 1px; border: 1px solid #000000; } 
+  a:focus { text-decoration: none; padding: 1px 2px 1px 2px; border: none; }
+  a.none { text-decoration: none; padding: 0; }
+  a.none:visited { text-decoration: none; padding: 0; } 
+  a.none:hover { text-decoration: none; border: none; padding: 0; } 
+  a.none:focus { text-decoration: none; border: none; padding: 0; } 
+  a.noborder { text-decoration: none; padding: 0; } 
+  a.noborder:visited { text-decoration: none; padding: 0; } 
+  a.noborder:hover { text-decoration: none; border: none; padding: 0; } 
+  a.noborder:focus { text-decoration: none; border: none; padding: 0; }  
+  pre.none { padding:5px; background-color:#ffffff }
+  </style>
+</head>
+
+<body bgcolor=white>
+
+<h2>CL-FAD - A portable pathname library for Common Lisp</h2>
+
+<blockquote>
+<br>&nbsp;<br><h3><a name=abstract class=none>Abstract</a></h3>
+
+CL-FAD (for "<font color=red>F</font>iles <font color=red>a</font>nd
+<font color=red>D</font>irectories") is a thin layer atop Common
+Lisp's standard pathname functions.  It is intended to provide some
+unification between current CL implementations on Windows, OS X,
+Linux, and Unix.  Most of the code was written by Peter Seibel for his book <a href="http://www.gigamonkeys.com/book/"><em>Practical Common Lisp</em></a>.
+
+<p>
+
+CL-FAD comes with a <a
+href="http://www.opensource.org/licenses/bsd-license.php">BSD-style
+license</a> so you can basically do with it whatever you want.
+
+<p>
+<font color=red>Download shortcut:</font> <a href="http://weitz.de/files/cl-fad.tar.gz">http://weitz.de/files/cl-fad.tar.gz</a>.
+
+</blockquote>
+
+<br>&nbsp;<br><h3><a class=none name="contents">Contents</a></h3>
+<ol>
+  <li><a href="#download">Download and installation</a>
+  <li><a href="#implementations">Supported Lisp implementations</a>
+  <li><a href="#dictionary">The CL-FAD dictionary</a>
+  <ol>
+      <li><a href="#directory-pathname-p"><code>directory-pathname-p</code></a>
+      <li><a href="#pathname-as-directory"><code>pathname-as-directory</code></a>
+      <li><a href="#pathname-as-file"><code>pathname-as-file</code></a>
+      <li><a href="#file-exists-p"><code>file-exists-p</code></a>
+      <li><a href="#directory-exists-p"><code>directory-exists-p</code></a>
+      <li><a href="#list-directory"><code>list-directory</code></a>
+      <li><a href="#walk-directory"><code>walk-directory</code></a>
+      <li><a href="#delete-directory-and-files"><code>delete-directory-and-files</code></a>
+      <li><a href="#copy-file"><code>copy-file</code></a>
+      <li><a href="#copy-stream"><code>copy-stream</code></a>
+  </ol>
+  <li><a href="#ack">Acknowledgements</a>
+</ol>
+
+
+
+<br>&nbsp;<br><h3><a class=none name="download">Download and installation</a></h3>
+
+CL-FAD together with this documentation can be downloaded from <a
+href="http://weitz.de/files/cl-fad.tar.gz">http://weitz.de/files/cl-fad.tar.gz</a>. The
+current version is 0.6.2.
+<p>
+CL-FAD comes with simple system definitions for <a
+href="http://www.cliki.net/mk-defsystem">MK:DEFSYSTEM</a> and <a
+href="http://www.cliki.net/asdf">asdf</a> so you can either adapt it
+to your needs or just unpack the archive and from within the CL-FAD
+directory start your Lisp image and evaluate the form
+<code>(mk:compile-system&nbsp;&quot;cl-fad&quot;)</code> - or <code>(asdf:oos&nbsp;'asdf:load-op&nbsp;:cl-fad)</code> for asdf - which should compile and load the whole
+system.
+Installation via <a
+href="http://www.cliki.net/asdf-install">asdf-install</a> should as well
+be possible.  Plus, there are ports
+for <a href="http://www.gentoo.org/proj/en/common-lisp/index.xml">Gentoo Linux</a> thanks to Matthew Kennedy
+and for <a href="http://packages.debian.org/cgi-bin/search_packages.pl?keywords=cl-fad&amp;searchon=names&amp;subword=1&amp;version=all&amp;release=all">Debian Linux</a> thanks to Ren&eacute; van Bevern.
+<p>
+If for some reason you can't or don't want to use MK:DEFSYSTEM or asdf you
+can just <code>LOAD</code> the file <code>load.lisp</code>.
+<p>
+Lu&iacute;s Oliveira maintains a <a href="http://darcs.net/">darcs</a>
+repository of CL-FAD
+at <a
+href="http://common-lisp.net/~loliveira/ediware/">http://common-lisp.net/~loliveira/ediware/</a>.
+<p>
+If you want to send patches, please <a href="http://weitz.de/patches.html">read this first</a>.
+
+<br>&nbsp;<br><h3><a class=none name="implementations">Supported Lisp implementations</a></h3>
+
+<p>
+The following Common Lisp implementations are currently supported:
+<ul>
+<li><a href="http://armedbear.org/abcl.html">Armed Bear Common Lisp</a>
+<li><a href="http://www.cons.org/cmucl/">CMUCL</a>
+<li><a href="http://www.cormanlisp.com/">Corman Common Lisp</a>
+<li><a href="http://ecls.sf.net/">ECL</a>
+<li><a href="http://www.franz.com/products/allegrocl/">Franz AllegroCL</a>
+<li><a href="http://clisp.cons.org/">GNU CLISP</a>
+<li><a href="http://www.lispworks.com/">LispWorks</a>
+<li><a href="http://www.digitool.com/">Macintosh Common Lisp</a>
+<li><a href="http://openmcl.clozure.com/">OpenMCL</a>
+<li><a href="http://www.scieneer.com/scl/">Scieneer Common Lisp</a>
+<li><a href="http://sbcl.sourceforge.net/">Steel Bank Common Lisp</a>
+</ul>
+
+I'll gladly accepts patches to make CL-FAD work on other platforms.
+
+
+<br>&nbsp;<br><h3><a class=none name="dictionary">The CL-FAD dictionary</a></h3>
+
+<p><br>[Function]
+<br><a class=none name="directory-pathname-p"><b>directory-pathname-p</b> <i> pathspec </i> =&gt; <i> generalized-boolean</i></a>
+
+<blockquote><br>
+Returns <code>NIL</code> if <code><i>pathspec</i></code> (a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a>) does not designate
+a directory, <code><i>pathspec</i></code> otherwise.  It is irrelevant whether the file or
+directory designated by <code><i>pathspec</i></code> does actually exist.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="pathname-as-directory"><b>pathname-as-directory</b> <i> pathspec </i> =&gt; <i> pathname</i></a> 
+<blockquote><br>
+Converts the <em>non-wild</em> <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code> to <em>directory form</em>, i.e. it returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname">pathname</a> which would return a <em>true</em> value if fed to <a href="#directory-pathname-p"><code>DIRECTORY-PATHNAME-P</code></a>.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="pathname-as-file"><b>pathname-as-file</b> <i> pathspec </i> =&gt; <i> pathname</i></a>
+
+<blockquote><br>
+Converts the <em>non-wild</em> <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code> to <em>file form</em>, i.e. it returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname">pathname</a> which would return a <code>NIL</code> value if fed to <a href="#directory-pathname-p"><code>DIRECTORY-PATHNAME-P</code></a>.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="file-exists-p"><b>file-exists-p</b> <i> pathspec </i> =&gt; <i> generalized-boolean</i></a>
+
+<blockquote><br>
+Checks whether the file named by the <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code>
+exists and returns its <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_t.htm#truename">truename</a> if this is the case, <code>NIL</code> otherwise.
+The truename is returned in "canonical" form, i.e. the truename of a
+directory is returned in <em>directory form</em> as if by <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="directory-exists-p"><b>directory-exists-p</b> <i> pathspec </i> =&gt; <i> generalized-boolean</i></a>
+
+<blockquote><br>
+Checks whether the file named by the <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code>
+exists and if it is a directory.  Returns its <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_t.htm#truename">truename</a> if this is the
+case, <code>NIL</code> otherwise.  The truename is returned in <em>directory form</em> as if
+by <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="list-directory"><b>list-directory</b> <i> dirname </i> =&gt; <i> list</i></a>
+
+<blockquote><br>
+Returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#fresh">fresh</a> list of pathnames corresponding to the truenames of
+all files within the directory named by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>dirname</i></code>.  The pathnames of sub-directories are returned in
+<em>directory form</em> - see <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="walk-directory"><b>walk-directory</b> <i> dirname fn <tt>&amp;key</tt> directories if-does-not-exist test</i> =&gt; |</a>
+
+<blockquote><br>
+  Recursively applies the function designated by the <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#function_designator">function 
+  designator</a> <code><i>fn</i></code> to all files within the directory named 
+  by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname 
+  designator</a> <code><i>dirname</i></code> and all of its sub-directories. <code><i>fn</i></code> 
+  will only be applied to files for which the function <code><i>test</i></code> 
+  returns a <em>true</em> value. (The default value for <code><i>test</i></code> 
+  always returns <em>true</em>.) If <code><i>directories</i></code> is not <code>NIL</code>, 
+  <code><i>fn</i></code> and <code><i>test</i></code> are applied to directories 
+  as well. If <code><i>directories</i></code> is <code>:DEPTH-FIRST</code>, <code><i>fn</i></code> 
+  will be applied to the directory's contents first. If <code><i>directories</i></code> 
+  is <code>:BREADTH-FIRST</code> and <code><i>test</i></code> returns <code>NIL</code>, the 
+  directory's content will be skipped.  <code><i>if-does-not-exist</i></code> must 
+  be one of <code>:ERROR</code> or <code>:IGNORE</code> where <code>:ERROR</code> 
+  (the default) means that an error will be signaled if the directory <code><i>dirname</i></code> 
+  does not exist. </blockquote>
+
+<p><br>[Function]
+<br><a class=none name="delete-directory-and-files"><b>delete-directory-and-files</b> <i> dirname<tt>&amp;key</tt> if-does-not-exist</i> =&gt; |</a>
+
+<blockquote><br>
+Recursively deletes all files and directories within the directory
+designated by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>dirname</i></code> including
+<code><i>dirname</i></code> itself.  <code><i>if-does-not-exist</i></code> must be one of <code>:ERROR</code> or <code>:IGNORE</code>
+where <code>:ERROR</code> (the default) means that an error will be signaled if the directory
+<code><i>dirname</i></code> does not exist.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="copy-file"><b>copy-file</b> <i> from to <tt>&amp;key</tt> overwrite</i> =&gt; |</a>
+
+<blockquote><br>
+Copies the file designated by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>from</i></code> to the
+file designated by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>to</i></code>.  If <code><i>overwrite</i></code> is <em>true</em> (the default is <code>NIL</code>)
+overwrites the file designtated by <code><i>to</i></code> if it exists.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="copy-stream"><b>copy-stream</b> <i> from to <tt>&amp;optional</tt> checkp</i> =&gt; |</a>
+
+<blockquote><br> Copies into <code><i>to</i></code> (a stream)
+from <code><i>from</i></code> (also a stream) until the end
+of <code><i>from</i></code> is reached.  The streams should have the
+same <a
+href="http://www.lispworks.com/documentation/HyperSpec/Body/f_stm_el.htm">element
+type</a> unless they are bivalent.  If <code><i>checkp</i></code> is
+true (which is the default), the function will signal an error if the
+element types aren't the same.
+</blockquote>
+
+<br>&nbsp;<br><h3><a class=none name="ack">Acknowledgements</a></h3>
+
+The original code for this library was written by Peter Seibel for his
+book <a href="http://www.gigamonkeys.com/book/"><em>Practical Common
+Lisp</em></a>. I added some stuff and made sure it worked properly on
+Windows, specifically with CCL.  Thanks to James Bielman, Maciek
+Pasternacki, Jack D. Unrue, Gary King, and Douglas Crosher who sent
+patches for OpenMCL, ECL, ABCL, MCL, and Scieneer&nbsp;CL.
+
+<p>
+$Header: /usr/local/cvsrep/cl-fad/doc/index.html,v 1.32 2008/03/12 00:10:45 edi Exp $
+<p><a href="http://weitz.de/index.html">BACK TO MY HOMEPAGE</a>
+
+</body>
+</html>
+
