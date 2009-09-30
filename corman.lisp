@@ -1,7 +1,7 @@
 ;;; -*- Mode: LISP; Syntax: COMMON-LISP; Package: CL; Base: 10 -*-
-;;; $Header: /usr/local/cvsrep/cl-fad/corman.lisp,v 1.4 2008/03/12 00:10:43 edi Exp $
+;;; $Header: /usr/local/cvsrep/cl-fad/corman.lisp,v 1.5 2009/09/30 14:23:09 edi Exp $
 
-;;; Copyright (c) 2004-2008, Dr. Edmund Weitz.  All rights reserved.
+;;; Copyright (c) 2004-2009, Dr. Edmund Weitz.  All rights reserved.
 
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are permitted provided that the following conditions

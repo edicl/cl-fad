@@ -1,3 +1,7 @@
+Version 0.6.3
+2009-09-30
+Removed dependency on :SB-EXECUTABLE (thanks to Attila Lendvai and Tobias Rittweiler)
+
 Version 0.6.2
 2008-03-12
 Never version of OpenMCL have %RMDIR (thanks to Dmitri Hrapof)

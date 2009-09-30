@@ -1,8 +1,8 @@
 ;;; -*- Mode: LISP; Syntax: COMMON-LISP; Package: CL-FAD; Base: 10 -*-
-;;; $Header: /usr/local/cvsrep/cl-fad/fad.lisp,v 1.33 2008/03/12 00:10:43 edi Exp $
+;;; $Header: /usr/local/cvsrep/cl-fad/fad.lisp,v 1.35 2009/09/30 14:23:10 edi Exp $
 
 ;;; Copyright (c) 2004, Peter Seibel.  All rights reserved.
-;;; Copyright (c) 2004-2008, Dr. Edmund Weitz.  All rights reserved.
+;;; Copyright (c) 2004-2009, Dr. Edmund Weitz.  All rights reserved.
 
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are permitted provided that the following conditions
@@ -205,9 +205,8 @@ signaled if the directory DIRNAME does not exist."
          (error "IF-DOES-NOT-EXIST must be one of :ERROR or :IGNORE."))))
     (values)))
 
-#-:sbcl
 (defvar *stream-buffer-size* 8192)
-#-:sbcl
+
 (defun copy-stream (from to &optional (checkp t))
   "Copies into TO \(a stream) from FROM \(also a stream) until the end
 of FROM is reached, in blocks of *stream-buffer-size*.  The streams
@@ -219,20 +218,11 @@ checked for compatibility of their types."
   (let ((buf (make-array *stream-buffer-size*
                          :element-type (stream-element-type from))))
     (loop
-     (let ((pos #-(or :clisp :cmu) (read-sequence buf from)
-                #+:clisp (ext:read-byte-sequence buf from :no-hang nil)
-                #+:cmu (sys:read-n-bytes from buf 0 *stream-buffer-size* nil)))
-       (when (zerop pos) (return))
-       (write-sequence buf to :end pos))))
-  (values))
-
-#+:sbcl
-(declaim (inline copy-stream))
-#+:sbcl
-(defun copy-stream (from to)
-  "Copies into TO \(a stream) from FROM \(also a stream) until the end
-of FROM is reached.  The streams should have the same element type."
-  (sb-executable:copy-stream from to)
+       (let ((pos #-(or :clisp :cmu) (read-sequence buf from)
+                  #+:clisp (ext:read-byte-sequence buf from :no-hang nil)
+                  #+:cmu (sys:read-n-bytes from buf 0 *stream-buffer-size* nil)))
+         (when (zerop pos) (return))
+         (write-sequence buf to :end pos))))
   (values))
 
 (defun copy-file (from to &key overwrite)
