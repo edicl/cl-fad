@@ -2,7 +2,7 @@
 ;;; $Header: /usr/local/cvsrep/cl-fad/fad.lisp,v 1.35 2009/09/30 14:23:10 edi Exp $
 
 ;;; Copyright (c) 2004, Peter Seibel.  All rights reserved.
-;;; Copyright (c) 2004-2009, Dr. Edmund Weitz.  All rights reserved.
+;;; Copyright (c) 2004-2010, Dr. Edmund Weitz.  All rights reserved.
 
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are permitted provided that the following conditions
@@ -272,7 +272,7 @@ DIRNAME does not exist."
                                                         file (unix:get-unix-error-msg errno))))
                                       #+:sbcl (sb-posix:rmdir file)
                                       #+:clisp (ext:delete-dir file)
-                                      #+:openmcl (ccl:delete-directory file)
+                                      #+:openmcl (cl-fad-ccl:delete-directory file)
                                       #+:cormanlisp (win32:delete-directory file)
                                       #+:ecl (si:rmdir file)
                                       #+(or :abcl :digitool) (delete-file file))

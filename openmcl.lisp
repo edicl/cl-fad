@@ -1,7 +1,7 @@
 ;;; -*- Mode: LISP; Syntax: COMMON-LISP; Package: CCL; Base: 10 -*-
 ;;; $Header: /usr/local/cvsrep/cl-fad/openmcl.lisp,v 1.6 2009/09/30 14:23:10 edi Exp $
 
-;;; Copyright (c) 2004-2009, Dr. Edmund Weitz.  All rights reserved.
+;;; Copyright (c) 2004-2010, Dr. Edmund Weitz.  All rights reserved.
 
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are permitted provided that the following conditions
@@ -27,22 +27,43 @@
 ;;; NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(in-package :ccl)
+(in-package :cl-fad)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (let ((%rmdir-symbol (find-symbol "%RMDIR" :ccl)))
-    (unless (and %rmdir-symbol (fboundp %rmdir-symbol))
-      (pushnew :no-%rmdir *features*))))
+  (flet ((ccl-function-feature (symbol-name feature)
+           (let ((symbol (find-symbol symbol-name :ccl)))
+             (when (and symbol (fboundp symbol))
+               (pushnew feature *features*)))))
+    (ccl-function-feature "%RMDIR" :ccl-has-%rmdir)
+    (ccl-function-feature "DELETE-DIRECTORY" :ccl-has-delete-directory)))
 
-#+:no-%rmdir
+(defpackage :cl-fad-ccl
+  (:use :cl)
+  (:export delete-directory)
+  (:import-from :ccl
+                :%realpath
+                :signal-file-error
+                :native-translated-namestring
+                :with-cstrs)
+  #+ccl-has-%rmdir
+  (:import-from :ccl :%rmdir)
+  #+ccl-has-delete-directory
+  (:import-from :ccl :delete-directory))
+
+(in-package :cl-fad-ccl)
+
+#-ccl-has-%rmdir
 (defun %rmdir (name)
   (with-cstrs ((n name))
     (#_rmdir n)))
 
+;;; ClozureCL 1.6 introduced ccl:delete-directory with semantics that
+;;; are acceptably similar to this "legacy" definition.
+
+#-ccl-has-delete-directory
 (defun delete-directory (path)
   (let* ((namestring (native-translated-namestring path)))
     (when (%realpath namestring)
       (let* ((err (%rmdir namestring)))
         (or (eql 0 err) (signal-file-error err path))))))
 
-(export 'delete-directory)

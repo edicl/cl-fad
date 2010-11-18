@@ -1,3 +1,7 @@
+Version 0.6.4
+2010-11-18
+Adapt to newer ClozureCL version (patch from Zach Beane, thanks to Chun Tian and Ralph Moritz as well)
+
 Version 0.6.3
 2009-09-30
 Removed dependency on :SB-EXECUTABLE (thanks to Attila Lendvai and Tobias Rittweiler)

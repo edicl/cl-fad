@@ -1,7 +1,7 @@
 ;;; -*- Mode: LISP; Syntax: COMMON-LISP; Package: CL-USER; Base: 10 -*-
 ;;; $Header: /usr/local/cvsrep/cl-fad/cl-fad.asd,v 1.21 2009/09/30 14:23:09 edi Exp $
 
-;;; Copyright (c) 2004-2009, Dr. Edmund Weitz.  All rights reserved.
+;;; Copyright (c) 2004-2010, Dr. Edmund Weitz.  All rights reserved.
 
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are permitted provided that the following conditions
@@ -30,7 +30,7 @@
 #+:allegro (cl:require :osi)
 
 (asdf:defsystem #:cl-fad
-  :version "0.6.3"
+  :version "0.6.4"
   :serial t
   :components ((:file "packages")
                #+:cormanlisp (:file "corman")
