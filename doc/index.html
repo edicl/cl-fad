@@ -164,18 +164,31 @@ by <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
 </blockquote>
 
 <p><br>[Function]
-<br><a class=none name="list-directory"><b>list-directory</b> <i> dirname </i> =&gt; <i> list</i></a>
+<br><a class=none name="list-directory"><b>list-directory</b> <i> dirname <tt>&amp;key</tt> follow-symlinks</i> =&gt; <i> list</i></a>
 
 <blockquote><br>
-Returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#fresh">fresh</a> list of pathnames corresponding to the truenames of
+<p>
+Returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#fresh">fresh</a> list of pathnames corresponding to
 all files within the directory named by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>dirname</i></code>.  The pathnames of sub-directories are returned in
 <em>directory form</em> - see <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
+</p>
+<p>
+  If <code><i>follow-symlinks</i></code> is true (which is the
+  default), then the returned list contains truenames (symlinks will
+  be resolved) which essentially means that it might also return files
+  from <b>outside</b> the directory.  This works on all platforms.
+</p>
+<p>
+  When <code><i>follow-symlinks</i></code> is <code>NIL</code>, it should return the actual directory
+  contents, which might include symlinks. (This is currently implemented only on SBCL and CCL.)
+</p>
 </blockquote>
 
 <p><br>[Function]
-<br><a class=none name="walk-directory"><b>walk-directory</b> <i> dirname fn <tt>&amp;key</tt> directories if-does-not-exist test</i> =&gt; |</a>
+<br><a class=none name="walk-directory"><b>walk-directory</b> <i> dirname fn <tt>&amp;key</tt> directories if-does-not-exist test follow-symlinks</i> =&gt; |</a>
 
 <blockquote><br>
+<p>
   Recursively applies the function designated by the <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#function_designator">function 
   designator</a> <code><i>fn</i></code> to all files within the directory named 
   by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname 
@@ -190,17 +203,33 @@ all files within the directory named by the non-wild <a href="http://www.lispwor
   directory's content will be skipped.  <code><i>if-does-not-exist</i></code> must 
   be one of <code>:ERROR</code> or <code>:IGNORE</code> where <code>:ERROR</code> 
   (the default) means that an error will be signaled if the directory <code><i>dirname</i></code> 
-  does not exist. </blockquote>
+  does not exist.
+</p>
+<p>
+  If <code><i>follow-symlinks</i></code> is true (which is
+  the default), then your callback will receive truenames.  Otherwise
+  you should get the actual directory contents, which might include
+  symlinks.  This might not be supported on all platforms.  See
+  <a href="#list-directory"><code>LIST-DIRECTORY</code></a>.
+</p>
+</blockquote>
 
 <p><br>[Function]
 <br><a class=none name="delete-directory-and-files"><b>delete-directory-and-files</b> <i> dirname<tt>&amp;key</tt> if-does-not-exist</i> =&gt; |</a>
 
 <blockquote><br>
+<p>
 Recursively deletes all files and directories within the directory
 designated by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>dirname</i></code> including
 <code><i>dirname</i></code> itself.  <code><i>if-does-not-exist</i></code> must be one of <code>:ERROR</code> or <code>:IGNORE</code>
 where <code>:ERROR</code> (the default) means that an error will be signaled if the directory
 <code><i>dirname</i></code> does not exist.
+</p>
+<p>
+  <b>Warning:</b> this function <em>might</em> remove files from outside the
+  directory, if the directory that you are deleting contains links to
+  external files.  This is currently fixed for SBCL and CCL.
+</p>
 </blockquote>
 
 <p><br>[Function]

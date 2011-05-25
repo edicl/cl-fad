@@ -39,7 +39,7 @@ is neither NIL nor the keyword :UNSPECIFIC."
   "Returns NIL if PATHSPEC \(a pathname designator) does not designate
 a directory, PATHSPEC otherwise.  It is irrelevant whether file or
 directory designated by PATHSPEC does actually exist."
-  (and 
+  (and
     (not (component-present-p (pathname-name pathspec)))
     (not (component-present-p (pathname-type pathspec)))
     pathspec))
@@ -80,23 +80,33 @@ sub-directories are returned by DIRECTORY."
                  :type nil
                  :defaults wildcard))
 
-(defun list-directory (dirname)
-  "Returns a fresh list of pathnames corresponding to the truenames of
-all files within the directory named by the non-wild pathname
-designator DIRNAME.  The pathnames of sub-directories are returned in
-directory form - see PATHNAME-AS-DIRECTORY."
+(defun list-directory (dirname &key (follow-symlinks t))
+  "Returns a fresh list of pathnames corresponding to all files within
+the directory named by the non-wild pathname designator DIRNAME.  The
+pathnames of sub-directories are returned in directory form - see
+PATHNAME-AS-DIRECTORY.
+
+If FOLLOW-SYMLINKS is true, then the returned list contains
+truenames (symlinks will be resolved) which essentially means that it
+might also return files from *outside* the directory.  This works on
+all platforms.
+
+When FOLLOW-SYMLINKS is NIL, it should return the actual directory
+contents, which might include symlinks.  Currently this works on SBCL
+and CCL."
   (when (wild-pathname-p dirname)
     (error "Can only list concrete directory names."))
-  #+:ecl 
+  #+:ecl
   (let ((dir (pathname-as-directory dirname)))
     (concatenate 'list
                  (directory (merge-pathnames (pathname "*/") dir))
                  (directory (merge-pathnames (pathname "*.*") dir))))
-  #-:ecl 
+  #-:ecl
   (let ((wildcard (directory-wildcard dirname)))
     #+:abcl (system::list-directory dirname)
-    #+(or :sbcl :cmu :scl :lispworks) (directory wildcard)
-    #+(or :openmcl :digitool) (directory wildcard :directories t)
+    #+:sbcl (directory wildcard :resolve-symlinks follow-symlinks)
+    #+(or :cmu :scl :lispworks) (directory wildcard)
+    #+(or :openmcl :digitool) (directory wildcard :directories t :follow-links follow-symlinks)
     #+:allegro (directory wildcard :directories-are-files nil)
     #+:clisp (nconc (directory wildcard :if-does-not-exist :keep)
                     (directory (clisp-subdirectories-wildcard wildcard)))
@@ -160,32 +170,36 @@ by PATHNAME-AS-DIRECTORY."
 
 (defun walk-directory (dirname fn &key directories
                                        (if-does-not-exist :error)
-                                       (test (constantly t)))
+                                       (test (constantly t))
+                                       (follow-symlinks t))
   "Recursively applies the function FN to all files within the
 directory named by the non-wild pathname designator DIRNAME and all of
 its sub-directories.  FN will only be applied to files for which the
 function TEST returns a true value.  If DIRECTORIES is not NIL, FN and
-TEST are applied to directories as well.  If DIRECTORIES is :DEPTH-FIRST,
-FN will be applied to the directory's contents first.  If
-DIRECTORIES is :BREADTH-FIRST and TEST returns NIL, the
-directory's content will be skipped. IF-DOES-NOT-EXIST must be
-one of :ERROR or :IGNORE where :ERROR means that an error will be
-signaled if the directory DIRNAME does not exist."
+TEST are applied to directories as well.  If DIRECTORIES
+is :DEPTH-FIRST, FN will be applied to the directory's contents first.
+If DIRECTORIES is :BREADTH-FIRST and TEST returns NIL, the directory's
+content will be skipped. IF-DOES-NOT-EXIST must be one of :ERROR
+or :IGNORE where :ERROR means that an error will be signaled if the
+directory DIRNAME does not exist.  If FOLLOW-SYMLINKS is T, then your
+callback will receive truenames.  Otherwise you should get the actual
+directory contents, which might include symlinks.  This might not be
+supported on all platforms.  See LIST-DIRECTORY."
   (labels ((walk (name)
              (cond
                ((directory-pathname-p name)
                 ;; the code is written in a slightly awkward way for
                 ;; backward compatibility
                 (cond ((not directories)
-                       (dolist (file (list-directory name))
+                       (dolist (file (list-directory name :follow-symlinks follow-symlinks))
                          (walk file)))
                       ((eql directories :breadth-first)
                        (when (funcall test name)
                          (funcall fn name)
-                         (dolist (file (list-directory name))
+                         (dolist (file (list-directory name :follow-symlinks follow-symlinks))
                            (walk file))))
                       ;; :DEPTH-FIRST is implicit
-                      (t (dolist (file (list-directory name))
+                      (t (dolist (file (list-directory name :follow-symlinks follow-symlinks))
                            (walk file))
                          (when (funcall test name)
                            (funcall fn name)))))
@@ -253,32 +267,53 @@ OVERWRITE is true overwrites the file designtated by TO if it exists."
 designated by the non-wild pathname designator DIRNAME including
 DIRNAME itself.  IF-DOES-NOT-EXIST must be one of :ERROR or :IGNORE
 where :ERROR means that an error will be signaled if the directory
-DIRNAME does not exist."
+DIRNAME does not exist.
+
+NOTE: this function is dangerous if the directory that you are
+removing contains symlinks to files outside of it - the target files
+might be removed instead!  This is currently fixed for SBCL and CCL."
+
   #+:allegro (excl.osi:delete-directory-and-files dirname
                                                   :if-does-not-exist if-does-not-exist)
-  #-:allegro (walk-directory dirname
-                             (lambda (file)
-                               (cond ((directory-pathname-p file)
-                                      #+:lispworks (lw:delete-directory file)
-                                      #+:cmu (multiple-value-bind (ok err-number)
-                                                 (unix:unix-rmdir (namestring (truename file)))
-                                               (unless ok
-                                                 (error "Error number ~A when trying to delete ~A"
-                                                        err-number file)))
-                                      #+:scl (multiple-value-bind (ok errno)
-                                                 (unix:unix-rmdir (ext:unix-namestring (truename file)))
-                                               (unless ok
-                                                 (error "~@<Error deleting ~S: ~A~@:>"
-                                                        file (unix:get-unix-error-msg errno))))
-                                      #+:sbcl (sb-posix:rmdir file)
-                                      #+:clisp (ext:delete-dir file)
-                                      #+:openmcl (cl-fad-ccl:delete-directory file)
-                                      #+:cormanlisp (win32:delete-directory file)
-                                      #+:ecl (si:rmdir file)
-                                      #+(or :abcl :digitool) (delete-file file))
-                                     (t (delete-file file))))
-                             :directories t
-                             :if-does-not-exist if-does-not-exist)
+
+  #+:sbcl
+  (if (directory-exists-p dirname)
+      (sb-ext:delete-directory dirname :recursive t)
+      (ecase if-does-not-exist
+        (:error  (error "~S is not a directory" dirname))
+        (:ignore nil)))
+
+  #+:ccl-has-delete-directory
+  (if (directory-exists-p dirname)
+      (ccl:delete-directory dirname)
+      (ecase if-does-not-exist
+        (:error  (error "~S is not a directory" dirname))
+        (:ignore nil)))
+
+  #-(or :allegro :sbcl :ccl-has-delete-directory)
+  (walk-directory dirname
+                  (lambda (file)
+                    (cond ((directory-pathname-p file)
+                           #+:lispworks (lw:delete-directory file)
+                           #+:cmu (multiple-value-bind (ok err-number)
+                                      (unix:unix-rmdir (namestring (truename file)))
+                                    (unless ok
+                                      (error "Error number ~A when trying to delete ~A"
+                                             err-number file)))
+                           #+:scl (multiple-value-bind (ok errno)
+                                      (unix:unix-rmdir (ext:unix-namestring (truename file)))
+                                    (unless ok
+                                      (error "~@<Error deleting ~S: ~A~@:>"
+                                             file (unix:get-unix-error-msg errno))))
+                           #+:clisp (ext:delete-dir file)
+                           #+:openmcl (cl-fad-ccl:delete-directory file)
+                           #+:cormanlisp (win32:delete-directory file)
+                           #+:ecl (si:rmdir file)
+                           #+(or :abcl :digitool) (delete-file file))
+                          (t (delete-file file))))
+                  :follow-symlinks nil
+                  :directories t
+                  :if-does-not-exist if-does-not-exist)
   (values))
 
 (pushnew :cl-fad *features*)

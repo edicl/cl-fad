@@ -59,6 +59,9 @@
 
 ;;; ClozureCL 1.6 introduced ccl:delete-directory with semantics that
 ;;; are acceptably similar to this "legacy" definition.
+;;;
+;;; Except this legacy definition is not recursive, hence this function is
+;;; used only if there is no :CCL-HAS-DELETE-DIRECTORY feature.
 
 #-ccl-has-delete-directory
 (defun delete-directory (path)

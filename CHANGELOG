@@ -1,3 +1,7 @@
+Version 0.6.5
+xxx
+Fix symlink behaviour for some platforms (Mihai Bazon and Janis Dzerins)
+
 Version 0.6.4
 2010-11-18
 Adapt to newer ClozureCL version (patch from Zach Beane, thanks to Chun Tian and Ralph Moritz as well)
