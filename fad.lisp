@@ -94,6 +94,7 @@ all platforms.
 When FOLLOW-SYMLINKS is NIL, it should return the actual directory
 contents, which might include symlinks.  Currently this works on SBCL
 and CCL."
+  (declare (ignorable follow-symlinks))
   (when (wild-pathname-p dirname)
     (error "Can only list concrete directory names."))
   #+:ecl
