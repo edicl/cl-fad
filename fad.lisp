@@ -324,13 +324,6 @@ NIL) returns a pathname equal (as per pathname=) to it."
   (make-pathname :defaults pathname
                  :name nil :type nil))
 
-(defun pathname-sans-directory-pathname (pathname)
-  "Returns a complete pathname containing just the 'file' part of pathname.
-
-This is equivalent to (enough-namestring
-PATHNAME (pathname-directory-pathname PATHNAME))."
-  (make-pathname :defaults pathname :directory '()))
-
 (defun pathname-parent-directory (pathname)
   "Returns a pathname which would, by name at least, contain PATHNAME
 as one of its direct children. Symlinks can make the parent/child

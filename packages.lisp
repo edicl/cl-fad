@@ -47,7 +47,6 @@
            :pathname-as-directory
            :pathname-as-file
            :pathname-directory-pathname
-           :pathname-sans-directory-pathname
            :pathname-equal
            :pathname-parent-directory
            :pathname-absolute-p

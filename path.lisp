@@ -11,7 +11,7 @@
 
 (defalias path:dirname (pathname) cl-fad:pathname-directory-pathname)
 
-(defalias path:basename (pathname) cl-fad:pathname-sans-directory-pathname)
+(defun path:basename (pathname) (pathname (file-namestring pathname)))
 
 (defalias path:-e (pathname) cl-fad:file-exists-p)
 
