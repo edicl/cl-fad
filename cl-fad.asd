@@ -35,5 +35,6 @@
   :components ((:file "packages")
                #+:cormanlisp (:file "corman")
                #+:openmcl (:file "openmcl")
-               (:file "fad"))
+               (:file "fad")
+               (:file "path"))
   :depends-on (#+sbcl :sb-posix))

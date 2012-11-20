@@ -46,7 +46,38 @@
            :list-directory
            :pathname-as-directory
            :pathname-as-file
+           :pathname-directory-pathname
+           :pathname-sans-directory-pathname
+           :pathname-equal
+           :pathname-parent-directory
+           :pathname-absolute-p
+           :pathname-relative-p
+           :pathname-root-p
+           
+           :canonical-pathname
+           :merge-pathnames-as-directory
+           :merge-pathnames-as-file           
+           
            :walk-directory))
+
+(defpackage :path
+  (:use)
+  (:documentation "Rexporting certain functions from the cl-fad package with shorter names.
+
+This package provides no functionality, it serves only to make file
+system intensive code easier to read (for unix people at least).")
+  (:export #:dirname
+           #:basename
+           #:-e
+           #:-d
+           #:catfile
+           #:catdir
+           #:rm-r
+           #:=
+
+           #:absolute-p
+           #:relative-p
+           #:root-p))
 
 (defpackage :cl-fad-test
   (:use :cl :cl-fad)
