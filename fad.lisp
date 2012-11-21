@@ -404,7 +404,7 @@ Examples:
        for pathname in (rest pathnames)
        for type = (first (pathname-directory pathname))
        do (ecase type
-            (null ;; this is equivalent to (:relative) == ".", so, for this function, just do nothing.
+            ((nil) ;; this is equivalent to (:relative) == ".", so, for this function, just do nothing.
              )
             (:absolute
              (setf dir (pathname-directory pathname)))
@@ -429,18 +429,25 @@ Examples:
     (merge-pathnames-as-file #P\"foo/\" #P\"/bar/README\") == #P\"/bar/README\"
     (merge-pathnames-as-file #P\"/foo/\" #P\"/bar/\" #P'quux/file.txt) == #P\"/bar/quux/file.txt\"
 "
-  (when (null pathnames)
-    (return-from merge-pathnames-as-file
-      (make-pathname :defaults *default-pathname-defaults* :directory nil :name nil :type nil)))
-  (let* ((defaults (pop pathnames))
-         (file-name-part (first (butlast pathnames)))
-         (file-name-directory (make-pathname :defaults file-name-part
-                                             :name nil :type nil))
-         (pathnames (butlast pathnames)))
-    (make-pathname :defaults (apply #'merge-pathnames-as-directory (append (list defaults) pathnames (list file-name-directory)))
-                   :name (pathname-name file-name-part)
-                   :type (pathname-type file-name-part)
-                   :version (pathname-version file-name-part))))
+    (case (length pathnames)
+      (0
+       (when (null pathnames)
+         (make-pathname :defaults *default-pathname-defaults*
+                        :directory nil
+                        :name nil
+                        :type nil)))
+      (1
+       (pathname-as-file (first pathnames)))
+      (t
+       (let* ((defaults (pop pathnames))
+              (file-name-part (first (last pathnames)))
+              (file-name-directory (make-pathname :defaults file-name-part
+                                                  :name nil :type nil))
+              (pathnames (butlast pathnames)))
+         (make-pathname :defaults (apply #'merge-pathnames-as-directory (append (list defaults) pathnames (list file-name-directory)))
+                        :name (pathname-name file-name-part)
+                        :type (pathname-type file-name-part)
+                        :version (pathname-version file-name-part))))))
 
 (defmacro with-component-testers ((a b key) &body body)
   (let ((k (gensym)))
@@ -452,7 +459,8 @@ Examples:
 
                 (components-are-member (values)
                   (and (member ,a values :test #'eql)
-                       (member ,b values :test #'eql)))
+                       (member ,b values :test #'eql)
+                       (eql ,a ,b)))
                 
                 (components-are-string= ()
                   (and (stringp ,a) (stringp ,b) (string= ,a ,b)))
@@ -469,9 +477,12 @@ Examples:
 
 (defun pathname-host-equal (a b)
   (with-component-testers (a b #'pathname-host)
+    (eq a b)
     (components-are-member '(nil :unspecific))
     (components-are-string=)
-    (components-are-every #'string=)))
+    (and (consp a)
+         (consp b)
+         (components-are-every #'string=))))
 
 (defun pathname-device-equal (a b)
   (with-component-testers (a b #'pathname-device)
@@ -499,7 +510,7 @@ Examples:
     (components-are-string=)))
 
 (defun pathname-version-equal (a b)
-  (with-component-testers (a b #'pathname-type)
+  (with-component-testers (a b #'pathname-version)
     (and (null a) (null b))
     (components-are-member '(:wild :newest :unspecific))
     (and (integerp a) (integerp b) (= a b))))
