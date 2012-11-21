@@ -52,26 +52,38 @@ license</a> so you can basically do with it whatever you want.
   <li><a href="#implementations">Supported Lisp implementations</a>
   <li><a href="#dictionary">The CL-FAD dictionary</a>
   <ol>
-      <li><a href="#canonical-pathname"><code>canonical-pathname</code></a>
-      <li><a href="#copy-file"><code>copy-file</code></a>
-      <li><a href="#copy-stream"><code>copy-stream</code></a>
-      <li><a href="#delete-directory-and-files"><code>delete-directory-and-files</code></a>
-      <li><a href="#directory-exists-p"><code>directory-exists-p</code></a>
-      <li><a href="#directory-pathname-p"><code>directory-pathname-p</code></a>
-      <li><a href="#file-exists-p"><code>file-exists-p</code></a>
-      <li><a href="#list-directory"><code>list-directory</code></a>
-      <li><a href="#merge-pathnames-as-directory"><code>merge-pathnames-as-directory</code></a>
-      <li><a href="#merge-pathnames-as-file"><code>merge-pathnames-as-file</code></a>
-      <li><a href="#pathname-absolute-p"><code>pathname-absolute-p</code></a>
-      <li><a href="#pathname-as-directory"><code>pathname-as-directory</code></a>
-      <li><a href="#pathname-as-file"><code>pathname-as-file</code></a>
-      <li><a href="#pathname-directory-pathname"><code>pathname-directory-pathname</code></a>
-      <li><a href="#pathname-equal"><code>pathname-equal</code></a>
-      <li><a href="#pathname-parent-directory"><code>pathname-parent-directory</code></a>
-      <li><a href="#pathname-relative-p"><code>pathname-relative-p</code></a>
-      <li><a href="#pathname-root-p"><code>pathname-root-p</code></a>
-      <li><a href="#walk-directory"><code>walk-directory</code></a>
-      <li><a href="#package-path">The <code>path</code> package</a>
+    <li><a href="#querying">Querying files, directories and pathnames</a>
+      <ol>
+        <li><a href="#directory-exists-p"><code>directory-exists-p</code></a>
+        <li><a href="#directory-pathname-p"><code>directory-pathname-p</code></a>
+        <li><a href="#file-exists-p"><code>file-exists-p</code></a>
+        <li><a href="#pathname-absolute-p"><code>pathname-absolute-p</code></a>
+        <li><a href="#pathname-equal"><code>pathname-equal</code></a>
+        <li><a href="#pathname-relative-p"><code>pathname-relative-p</code></a>
+        <li><a href="#pathname-root-p"><code>pathname-root-p</code></a>
+    </ol> </li>
+    <li><a href="#manipulating">Manipulating pathnames</a>
+      <ol>
+        <li><a href="#canonical-pathname"><code>canonical-pathname</code></a>
+        <li><a href="#merge-pathnames-as-directory"><code>merge-pathnames-as-directory</code></a>
+        <li><a href="#merge-pathnames-as-file"><code>merge-pathnames-as-file</code></a>
+        <li><a href="#pathname-as-directory"><code>pathname-as-directory</code></a>
+        <li><a href="#pathname-as-file"><code>pathname-as-file</code></a>
+        <li><a href="#pathname-directory-pathname"><code>pathname-directory-pathname</code></a>
+        <li><a href="#pathname-parent-directory"><code>pathname-parent-directory</code></a>
+    </ol> </li>
+    <li><a href="#traversing">Traversing directories</a>
+      <ol>
+        <li><a href="#list-directory"><code>list-directory</code></a>
+        <li><a href="#walk-directory"><code>walk-directory</code></a>
+    </ol> </li>
+    <li><a href="#modifying">Modifying the file system</a>
+      <ol>
+        <li><a href="#copy-file"><code>copy-file</code></a>
+        <li><a href="#copy-stream"><code>copy-stream</code></a>
+        <li><a href="#delete-directory-and-files"><code>delete-directory-and-files</code></a>
+    </ol> </li>
+    <li><a href="#package-path">The <code>path</code> package</a>
   </ol>
   <li><a href="#ack">Acknowledgements</a>
 </ol>
@@ -127,6 +139,85 @@ I'll gladly accepts patches to make CL-FAD work on other platforms.
 
 <br>&nbsp;<br><h3><a class=none name="dictionary">The CL-FAD dictionary</a></h3>
 
+<h4><a class=none name="querying">Querying files, directories and pathnames</a></h4>
+
+<p><br>[Function]
+<br><a class=none name="directory-exists-p"><b>directory-exists-p</b> <i> pathspec </i> =&gt; <i> generalized-boolean</i></a>
+
+<blockquote><br>
+Checks whether the file named by the <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code>
+exists and if it is a directory.  Returns its <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_t.htm#truename">truename</a> if this is the
+case, <code>NIL</code> otherwise.  The truename is returned in <em>directory form</em> as if
+by <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="directory-pathname-p"><b>directory-pathname-p</b> <i> pathspec </i> =&gt; <i> generalized-boolean</i></a>
+
+<blockquote><br>
+Returns <code>NIL</code> if <code><i>pathspec</i></code> (a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a>) does not designate
+a directory, <code><i>pathspec</i></code> otherwise.  It is irrelevant whether the file or
+directory designated by <code><i>pathspec</i></code> does actually exist.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="file-exists-p"><b>file-exists-p</b> <i> pathspec </i> =&gt; <i> generalized-boolean</i></a>
+
+<blockquote><br>
+Checks whether the file named by the <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code>
+exists and returns its <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_t.htm#truename">truename</a> if this is the case, <code>NIL</code> otherwise.
+The truename is returned in "canonical" form, i.e. the truename of a
+directory is returned in <em>directory form</em> as if by <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
+</blockquote>
+
+<p><br>[Function]<br><a class=none name='pathname-absolute-p'><b>pathname-absolute-p</b> <i>a</i> =&gt; <i>result</i></a>
+<blockquote>
+<p>Returns true if <code><i>a</i></code> is an absolute pathname. This simply
+tests if <code><i>a</i></code>&#039;s directory list starts with <code>:ABSOLUTE</code></p>
+</blockquote>
+
+<p><br>[Function]<br><a class=none name='pathname-equal'><b>pathname-equal</b> <i>a b</i> =&gt; <i>result</i></a>
+<blockquote>
+
+<p>Returns <em>true</em> if <code><i>a</i></code> and <code><i>b</i></code>
+represent the same pathname. This function does not access the
+filesystem, it only looks at the components of the two pathnames to
+test if they are the same (though by passing both <code><i>a</i></code>
+and <code><i>b</i></code> to probe-file one can make this function test for
+file &#039;sameness&#039;.</p>
+
+<p>Equality is defined as:</p>
+
+<ul>
+  <li>strings that are <code>string=</code>
+  <li>symbols (including <code>nil</code> and keywords) which are <code>eql</code>
+  <li>lists of the same length with equal (as per these rules) elements.
+</ul>
+
+<p>If any of these tree conditions is false for any of the components in
+<code><i>a</i></code> and <code><i>b</i></code> then <code><i>a</i></code>
+and <code><i>b</i></code> are different, otherwise they are the same.</p>
+
+<p><em>NB:</em> This function does not convert name strings to pathnames. So
+&quot;foo.txt&quot; and #P&quot;foo.txt&quot; are different pathnames.</p>
+
+</blockquote>
+
+<p><br>[Function]<br><a class=none name='pathname-relative-p'><b>pathname-relative-p</b> <i>a</i> =&gt; <i>result</i></a>
+<blockquote>
+<p>Returns true if <code><i>a</i></code> is a relative pathname. This simply
+tests if <code><i>a</i></code>&#039;s directory starts
+with <code>:RELATIVE</code>.</p>
+</blockquote>
+
+<p><br>[Function]<br><a class=none name='pathname-root-p'><b>pathname-root-p</b> <i>a</i> =&gt; <i>result</i></a>
+<blockquote>
+<p>Returns <em>true</em> if <code><i>pathname</i></code> is the root
+directory (in other words, a directory which is its own parent).</p>
+</blockquote>
+
+<h4><a class=none name="manipulating">Manipulating pathnames</a></h4>
+
 <p><br>[Function]<br><a class=none name='canonical-pathname'><b>canonical-pathname</b> <i>pathname</i> =&gt; <i>result</i></a>
 <blockquote>
 <p>Remove reduntant information from PATHNAME.</p>
@@ -144,69 +235,6 @@ remove <code>:BACK</code> elements from the path (not <code>:UP</code>
 elements). Since some lisps, ccl/sbcl/clisp convert &quot;..&quot; in
 pathnames to <code>:UP</code>, and not <code>:BACK</code>, the actual
 utility of the function is limited.</p>
-</blockquote>
-
-<p><br>[Function]
-<br><a class=none name="directory-pathname-p"><b>directory-pathname-p</b> <i> pathspec </i> =&gt; <i> generalized-boolean</i></a>
-
-<blockquote><br>
-Returns <code>NIL</code> if <code><i>pathspec</i></code> (a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a>) does not designate
-a directory, <code><i>pathspec</i></code> otherwise.  It is irrelevant whether the file or
-directory designated by <code><i>pathspec</i></code> does actually exist.
-</blockquote>
-
-<p><br>[Function]
-<br><a class=none name="pathname-as-directory"><b>pathname-as-directory</b> <i> pathspec </i> =&gt; <i> pathname</i></a> 
-<blockquote><br>
-Converts the <em>non-wild</em> <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code> to <em>directory form</em>, i.e. it returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname">pathname</a> which would return a <em>true</em> value if fed to <a href="#directory-pathname-p"><code>DIRECTORY-PATHNAME-P</code></a>.
-</blockquote>
-
-<p><br>[Function]
-<br><a class=none name="pathname-as-file"><b>pathname-as-file</b> <i> pathspec </i> =&gt; <i> pathname</i></a>
-
-<blockquote><br>
-Converts the <em>non-wild</em> <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code> to <em>file form</em>, i.e. it returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname">pathname</a> which would return a <code>NIL</code> value if fed to <a href="#directory-pathname-p"><code>DIRECTORY-PATHNAME-P</code></a>.
-</blockquote>
-
-<p><br>[Function]
-<br><a class=none name="file-exists-p"><b>file-exists-p</b> <i> pathspec </i> =&gt; <i> generalized-boolean</i></a>
-
-<blockquote><br>
-Checks whether the file named by the <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code>
-exists and returns its <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_t.htm#truename">truename</a> if this is the case, <code>NIL</code> otherwise.
-The truename is returned in "canonical" form, i.e. the truename of a
-directory is returned in <em>directory form</em> as if by <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
-</blockquote>
-
-<p><br>[Function]
-<br><a class=none name="directory-exists-p"><b>directory-exists-p</b> <i> pathspec </i> =&gt; <i> generalized-boolean</i></a>
-
-<blockquote><br>
-Checks whether the file named by the <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code>
-exists and if it is a directory.  Returns its <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_t.htm#truename">truename</a> if this is the
-case, <code>NIL</code> otherwise.  The truename is returned in <em>directory form</em> as if
-by <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
-</blockquote>
-
-<p><br>[Function]
-<br><a class=none name="list-directory"><b>list-directory</b> <i> dirname <tt>&amp;key</tt> follow-symlinks</i> =&gt; <i> list</i></a>
-
-<blockquote><br>
-<p>
-Returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#fresh">fresh</a> list of pathnames corresponding to
-all files within the directory named by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>dirname</i></code>.  The pathnames of sub-directories are returned in
-<em>directory form</em> - see <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
-</p>
-<p>
-  If <code><i>follow-symlinks</i></code> is true (which is the
-  default), then the returned list contains truenames (symlinks will
-  be resolved) which essentially means that it might also return files
-  from <b>outside</b> the directory.  This works on all platforms.
-</p>
-<p>
-  When <code><i>follow-symlinks</i></code> is <code>NIL</code>, it should return the actual directory
-  contents, which might include symlinks. (This is currently implemented only on SBCL and CCL.)
-</p>
 </blockquote>
 
 <p><br>[Function]<br><a class=none name='merge-pathnames-as-directory'><b>merge-pathnames-as-directory</b> <i><tt>&amp;rest</tt> pathnames</i> =&gt; <i>result</i></a>
@@ -266,10 +294,17 @@ Examples:
 
 </blockquote>
 
-<p><br>[Function]<br><a class=none name='pathname-absolute-p'><b>pathname-absolute-p</b> <i>a</i> =&gt; <i>result</i></a>
-<blockquote>
-<p>Returns true if <code><i>a</i></code> is an absolute pathname. This simply
-tests if <code><i>a</i></code>&#039;s directory list starts with <code>:ABSOLUTE</code></p>
+<p><br>[Function]
+<br><a class=none name="pathname-as-directory"><b>pathname-as-directory</b> <i> pathspec </i> =&gt; <i> pathname</i></a> 
+<blockquote><br>
+Converts the <em>non-wild</em> <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code> to <em>directory form</em>, i.e. it returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname">pathname</a> which would return a <em>true</em> value if fed to <a href="#directory-pathname-p"><code>DIRECTORY-PATHNAME-P</code></a>.
+</blockquote>
+
+<p><br>[Function]
+<br><a class=none name="pathname-as-file"><b>pathname-as-file</b> <i> pathspec </i> =&gt; <i> pathname</i></a>
+
+<blockquote><br>
+Converts the <em>non-wild</em> <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>pathspec</i></code> to <em>file form</em>, i.e. it returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname">pathname</a> which would return a <code>NIL</code> value if fed to <a href="#directory-pathname-p"><code>DIRECTORY-PATHNAME-P</code></a>.
 </blockquote>
 
 <p><br>[Function]<br><a class=none name='pathname-directory-pathname'><b>pathname-directory-pathname</b> <i>pathname</i> =&gt; <i>result</i></a>
@@ -280,33 +315,6 @@ already a directory pathname
 (<code>name</code> <code>nil</code>, <code>type</code>
 <code>nil</code>) returns a pathname equal (as
 per <a href="#pathname-equal">pathname-equal</a>) to it.</p>
-</blockquote>
-
-<p><br>[Function]<br><a class=none name='pathname-equal'><b>pathname-equal</b> <i>a b</i> =&gt; <i>result</i></a>
-<blockquote>
-
-<p>Returns <em>true</em> if <code><i>a</i></code> and <code><i>b</i></code>
-represent the same pathname. This function does not access the
-filesystem, it only looks at the components of the two pathnames to
-test if they are the same (though by passing both <code><i>a</i></code>
-and <code><i>b</i></code> to probe-file one can make this function test for
-file &#039;sameness&#039;.</p>
-
-<p>Equality is defined as:</p>
-
-<ul>
-  <li>strings that are <code>string=</code>
-  <li>symbols (including <code>nil</code> and keywords) which are <code>eql</code>
-  <li>lists of the same length with equal (as per these rules) elements.
-</ul>
-
-<p>If any of these tree conditions is false for any of the components in
-<code><i>a</i></code> and <code><i>b</i></code> then <code><i>a</i></code>
-and <code><i>b</i></code> are different, otherwise they are the same.</p>
-
-<p><em>NB:</em> This function does not convert name strings to pathnames. So
-&quot;foo.txt&quot; and #P&quot;foo.txt&quot; are different pathnames.</p>
-
 </blockquote>
 
 <p><br>[Function]<br><a class=none name='pathname-parent-directory'><b>pathname-parent-directory</b> <i>pathname</i> =&gt; <i>result</i></a>
@@ -324,17 +332,27 @@ dirname.</p>
 
 </blockquote>
 
-<p><br>[Function]<br><a class=none name='pathname-relative-p'><b>pathname-relative-p</b> <i>a</i> =&gt; <i>result</i></a>
-<blockquote>
-<p>Returns true if <code><i>a</i></code> is a relative pathname. This simply
-tests if <code><i>a</i></code>&#039;s directory starts
-with <code>:RELATIVE</code>.</p>
-</blockquote>
+<h4><a class=none name="traversing">Traversing directories</a></h4>
 
-<p><br>[Function]<br><a class=none name='pathname-root-p'><b>pathname-root-p</b> <i>a</i> =&gt; <i>result</i></a>
-<blockquote>
-<p>Returns <em>true</em> if <code><i>pathname</i></code> is the root
-directory (in other words, a directory which is its own parent).</p>
+<p><br>[Function]
+<br><a class=none name="list-directory"><b>list-directory</b> <i> dirname <tt>&amp;key</tt> follow-symlinks</i> =&gt; <i> list</i></a>
+
+<blockquote><br>
+<p>
+Returns a <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#fresh">fresh</a> list of pathnames corresponding to
+all files within the directory named by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>dirname</i></code>.  The pathnames of sub-directories are returned in
+<em>directory form</em> - see <a href="#pathname-as-directory"><code>PATHNAME-AS-DIRECTORY</code></a>.
+</p>
+<p>
+  If <code><i>follow-symlinks</i></code> is true (which is the
+  default), then the returned list contains truenames (symlinks will
+  be resolved) which essentially means that it might also return files
+  from <b>outside</b> the directory.  This works on all platforms.
+</p>
+<p>
+  When <code><i>follow-symlinks</i></code> is <code>NIL</code>, it should return the actual directory
+  contents, which might include symlinks. (This is currently implemented only on SBCL and CCL.)
+</p>
 </blockquote>
 
 <p><br>[Function]
@@ -367,23 +385,7 @@ directory (in other words, a directory which is its own parent).</p>
 </p>
 </blockquote>
 
-<p><br>[Function]
-<br><a class=none name="delete-directory-and-files"><b>delete-directory-and-files</b> <i> dirname<tt>&amp;key</tt> if-does-not-exist</i> =&gt; |</a>
-
-<blockquote><br>
-<p>
-Recursively deletes all files and directories within the directory
-designated by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>dirname</i></code> including
-<code><i>dirname</i></code> itself.  <code><i>if-does-not-exist</i></code> must be one of <code>:ERROR</code> or <code>:IGNORE</code>
-where <code>:ERROR</code> (the default) means that an error will be signaled if the directory
-<code><i>dirname</i></code> does not exist.
-</p>
-<p>
-  <b>Warning:</b> this function <em>might</em> remove files from outside the
-  directory, if the directory that you are deleting contains links to
-  external files.  This is currently fixed for SBCL and CCL.
-</p>
-</blockquote>
+<h4><a class=none name="modifying">Modifying the file system</a></h4>
 
 <p><br>[Function]
 <br><a class=none name="copy-file"><b>copy-file</b> <i> from to <tt>&amp;key</tt> overwrite</i> =&gt; |</a>
@@ -406,6 +408,25 @@ type</a> unless they are bivalent.  If <code><i>checkp</i></code> is
 true (which is the default), the function will signal an error if the
 element types aren't the same.
 </blockquote>
+<p><br>[Function]
+<br><a class=none name="delete-directory-and-files"><b>delete-directory-and-files</b> <i> dirname<tt>&amp;key</tt> if-does-not-exist</i> =&gt; |</a>
+
+<blockquote><br>
+<p>
+Recursively deletes all files and directories within the directory
+designated by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>dirname</i></code> including
+<code><i>dirname</i></code> itself.  <code><i>if-does-not-exist</i></code> must be one of <code>:ERROR</code> or <code>:IGNORE</code>
+where <code>:ERROR</code> (the default) means that an error will be signaled if the directory
+<code><i>dirname</i></code> does not exist.
+</p>
+<p>
+  <b>Warning:</b> this function <em>might</em> remove files from outside the
+  directory, if the directory that you are deleting contains links to
+  external files.  This is currently fixed for SBCL and CCL.
+</p>
+</blockquote>
+
+<h4>The <code>PATH</code> package</h4>
 
 <p><br>[Package]
 <br><a class=none name="package-path">(defpackage <b>path</b>)</a>
