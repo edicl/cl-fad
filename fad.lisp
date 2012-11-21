@@ -32,7 +32,7 @@
 
 (defun component-present-p (value)
   "Helper function for DIRECTORY-PATHNAME-P which checks whether VALUE
-is neither NIL nor the keyword :UNSPECIFIC."
+   is neither NIL nor the keyword :UNSPECIFIC."
   (and value (not (eql value :unspecific))))
 
 (defun directory-pathname-p (pathspec)
@@ -82,16 +82,16 @@ sub-directories are returned by DIRECTORY."
 
 (defun list-directory (dirname &key (follow-symlinks t))
   "Returns a fresh list of pathnames corresponding to all files within
-the directory named by the non-wild pathname designator DIRNAME.  The
-pathnames of sub-directories are returned in directory form - see
-PATHNAME-AS-DIRECTORY.
+   the directory named by the non-wild pathname designator DIRNAME.
+   The pathnames of sub-directories are returned in directory form -
+   see PATHNAME-AS-DIRECTORY.
 
-If FOLLOW-SYMLINKS is true, then the returned list contains
+  If FOLLOW-SYMLINKS is true, then the returned list contains
 truenames (symlinks will be resolved) which essentially means that it
 might also return files from *outside* the directory.  This works on
 all platforms.
 
-When FOLLOW-SYMLINKS is NIL, it should return the actual directory
+  When FOLLOW-SYMLINKS is NIL, it should return the actual directory
 contents, which might include symlinks.  Currently this works on SBCL
 and CCL."
   (declare (ignorable follow-symlinks))
@@ -316,6 +316,250 @@ might be removed instead!  This is currently fixed for SBCL and CCL."
                   :directories t
                   :if-does-not-exist if-does-not-exist)
   (values))
+
+(defun pathname-directory-pathname (pathname)
+  "Returns a complete pathname representing the directory of
+PATHNAME. If PATHNAME is already a directory pathname (name NIL, type
+NIL) returns a pathname equal (as per pathname=) to it."
+  (make-pathname :defaults pathname
+                 :name nil :type nil))
+
+(defun pathname-parent-directory (pathname)
+  "Returns a pathname which would, by name at least, contain PATHNAME
+as one of its direct children. Symlinks can make the parent/child
+relationship a like opaque, but generally speaking the value returned
+by this function is a directory name which contains PATHNAME.
+
+The root directory, #P\"/\", is its own parent. The parent directory
+of a filename is the parent of the filename's dirname."
+  (canonical-pathname
+   (make-pathname :defaults pathname
+                  :directory (if (pathname-root-p pathname)
+                                 (list :absolute)
+                                 (append (or (pathname-directory pathname)
+                                             (list :relative))
+                                         (list :back))))))
+
+(defun canonical-pathname (pathname)
+  "Remove reduntant information from PATHNAME.
+
+This simply walks down PATHNAME's pathname-directory and drops \".\"
+directories, removes :back and its preceding element.
+
+NB: This function does not access the filesystem, it only looks at the
+values in the pathname and works on their known (or assumed)
+meanings.
+
+NB: Since this function does not access the filesystem it will only
+remove :BACK elements from the path (not :UP elements). Since some
+lisps, ccl/sbcl/clisp convert \"..\" in pathnames to :UP, and
+not :BACK, the actual utility of the function is limited."
+  (let ((pathname (pathname pathname))) ;; just make sure to get a pathname object
+    (loop
+       with full-dir = (or (pathname-directory pathname)
+                           (list :relative))
+       with canon-dir = (if (member (first full-dir) '(:relative :absolute))
+                            (list (pop full-dir))
+                            (list :relative))
+       while full-dir
+       do (cond
+            ((string= "." (first full-dir))
+             (pop full-dir))
+            ((eql :back (second full-dir))
+             (pop full-dir)
+             (pop full-dir))
+            (t (push (pop full-dir) canon-dir)))
+       finally (return (make-pathname :defaults pathname :directory (nreverse canon-dir))))))
+
+(defun merge-pathnames-as-directory (&rest pathnames)
+  "Given a list of, probably relative, pathnames returns a single
+directory pathname containing the logical concatenation of them all.
+
+The returned value is the current directory if one were to cd into
+each of PATHNAMES in order. For this reason an absolute pathname will,
+effectively, cancel the affect of any previous relative pathnames.
+
+The returned value's defaults are taken from the first element of
+PATHNAMES (host, version and device).
+
+NB: Since this function only looks at directory names the name and
+type of the elements of PATHNAMES are ignored. Make sure to properly
+use either trailing #\\/s, or pathname-as-directory, to get the
+expected results.
+
+Examples:
+
+    (merge-pathnames-as-directory #P\"foo/\" #P\"bar/\") == #P\"foo/bar/\"
+    (merge-pathnames-as-directory #P\"foo/\" #P\"./bar/\") == #P\"foo/./bar/\"
+    (merge-pathnames-as-directory #P\"foo/\" #P\"/bar/\") == #P\"/bar/\"
+    (merge-pathnames-as-directory #P\"foo/\" #P\"/bar/\" #P'quux/file.txt) == #P\"/bar/quux/\"
+"
+  (when (null pathnames)
+    (return-from merge-pathnames-as-directory
+      (make-pathname :defaults *default-pathname-defaults* :directory nil :name nil :type nil)))
+  (let* ((pathnames (mapcar #'pathname pathnames)))
+    (loop
+       with defaults = (first pathnames)
+       with dir = (pathname-directory defaults)
+       for pathname in (rest pathnames)
+       for type = (first (pathname-directory pathname))
+       do (ecase type
+            ((nil) ;; this is equivalent to (:relative) == ".", so, for this function, just do nothing.
+             )
+            (:absolute
+             (setf dir (pathname-directory pathname)))
+            (:relative
+             (setf dir (append dir (rest (pathname-directory pathname))))))
+       finally (return (make-pathname :defaults defaults :directory dir :name nil :type nil)))))
+
+(defun merge-pathnames-as-file (&rest pathnames)
+    "Given a list of, probably relative, pathnames returns a single
+filename pathname containing the logical concatenation of them all.
+
+The returned value's defaults are taken from the first element of
+PATHNAMES (host, version and device). The returned values's name, type
+and version are taken from the last element of PATHNAMES. The
+intervening elements are used only for their pathname-directory
+values.
+
+Examples:
+
+    (merge-pathnames-as-file #P\"foo/\" #P\"bar.txt\") == #P\"foo/bar.txt\"
+    (merge-pathnames-as-file #P\"foo/\" #P\"./bar.txt\") == #P\"foo/./bar.txt\"
+    (merge-pathnames-as-file #P\"foo/\" #P\"/bar/README\") == #P\"/bar/README\"
+    (merge-pathnames-as-file #P\"/foo/\" #P\"/bar/\" #P'quux/file.txt) == #P\"/bar/quux/file.txt\"
+"
+    (case (length pathnames)
+      (0
+       (when (null pathnames)
+         (make-pathname :defaults *default-pathname-defaults*
+                        :directory nil
+                        :name nil
+                        :type nil)))
+      (1
+       (pathname-as-file (first pathnames)))
+      (t
+       (let* ((defaults (pop pathnames))
+              (file-name-part (first (last pathnames)))
+              (file-name-directory (make-pathname :defaults file-name-part
+                                                  :name nil :type nil))
+              (pathnames (butlast pathnames)))
+         (make-pathname :defaults (apply #'merge-pathnames-as-directory (append (list defaults) pathnames (list file-name-directory)))
+                        :name (pathname-name file-name-part)
+                        :type (pathname-type file-name-part)
+                        :version (pathname-version file-name-part))))))
+
+(defmacro with-component-testers ((a b key) &body body)
+  (let ((k (gensym)))
+    `(let* ((,k ,key)
+            (,a (funcall ,k ,a))
+            (,b (funcall ,k ,b)))
+       (labels ((components-are (test)
+                  (and (funcall test ,a) (funcall test ,b)))
+
+                (components-are-member (values)
+                  (and (member ,a values :test #'eql)
+                       (member ,b values :test #'eql)
+                       (eql ,a ,b)))
+                
+                (components-are-string= ()
+                  (and (stringp ,a) (stringp ,b) (string= ,a ,b)))
+
+                (components-are-every (test)
+                  (and (consp ,a)
+                       (consp ,b)
+                       (every test ,a ,b))))
+
+         
+         (if (or ,@body)
+             (values t ,a ,b)
+             nil)))))
+
+(defun pathname-host-equal (a b)
+  (with-component-testers (a b #'pathname-host)
+    (eq a b)
+    (components-are-member '(nil :unspecific))
+    (components-are-string=)
+    (and (consp a)
+         (consp b)
+         (components-are-every #'string=))))
+
+(defun pathname-device-equal (a b)
+  (with-component-testers (a b #'pathname-device)
+    (components-are-member '(nil :unspecific))
+    (components-are-string=)))
+
+(defun pathname-directory-equal (a b)
+  (with-component-testers (a b #'pathname-directory)
+    (and (null a) (null b))
+    (and (= (length a) (length b))
+         (every (lambda (a b)
+                  (or (and (stringp a) (stringp b) (string= a b))
+                      (and (null a) (null b))
+                      (and (keywordp a) (keywordp b) (eql a b))))
+                a b))))
+
+(defun pathname-name-equal (a b)
+  (with-component-testers (a b #'pathname-name)
+    (components-are-member '(nil :wild :unspecific))
+    (components-are-string=)))
+
+(defun pathname-type-equal (a b)
+  (with-component-testers (a b #'pathname-type)
+    (components-are-member '(nil :wild :unspecific))
+    (components-are-string=)))
+
+(defun pathname-version-equal (a b)
+  (with-component-testers (a b #'pathname-version)
+    (and (null a) (null b))
+    (components-are-member '(:wild :newest :unspecific))
+    (and (integerp a) (integerp b) (= a b))))
+
+(defun pathname-equal (a b)
+  "Returns T if A and B represent the same pathname. This function
+does not access the filesystem, it only looks at the components of the
+two pathnames to test if they are the same (though by
+passing both A and B to probe-file one can make this function test for file 'sameness'.
+
+Equality is defined as:
+
+  - strings that are string equal
+  - symbol (including nil) or keywords which are eql
+  - lists of the same length with equal (as per these rules) elements.
+
+if any of these tree conditions is false for any of the components in
+A and B then A and B are different, otherwise they are the same.
+
+NB: This function does not convert name strings to pathnames. So
+\"foo.txt\" and #P\"foo.txt\" are different pathnames."
+  (if (and a b)
+      (if (and (pathname-host-equal a b)
+               (pathname-device-equal a b)
+               (pathname-directory-equal a b)
+               (pathname-name-equal a b)
+               (pathname-type-equal a b)
+               (pathname-version-equal a b))
+          (values t a b)
+          (values nil))
+      (values nil)))
+
+(defun pathname-absolute-p (a)
+  "Returns true if A is an absolute pathname.
+
+This simply tests if A's directory list starts with :ABSOLUTE"
+  (eql :absolute (first (pathname-directory (pathname a)))))
+
+(defun pathname-relative-p (a)
+  "Returns true if A is a relative pathname.
+
+This simply tests if A's directory starts with :RELATIVE."
+  (let ((dir (pathname-directory (pathname a))))
+    (or (null dir) (eql :relative (first dir)))))
+
+(defun pathname-root-p (a)
+  (let ((dir (pathname-directory (pathname a))))
+    (and (eql :absolute (first dir))
+         (= 1 (length dir)))))
 
 (pushnew :cl-fad *features*)
 

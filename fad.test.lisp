@@ -43,6 +43,17 @@
 
 (defun test ()
   (setq *test-counter* 0)
+
+  (assert* (path:= (path:catdir) #P""))
+  (assert* (path:= (path:catdir #P"/") #P"/"))
+  (assert* (path:= (path:catdir #P"a/" #P"b/") #P"a/b/"))
+  (assert* (path:= (path:catdir #P"/a/" #P"/b/" #P"c/" #P"./d/" #P"e" #P"f/") #P"/b/c/./d/f/"))
+
+  (assert* (path:= (path:catfile) #P""))
+  (assert* (path:= (path:catfile #P"R.txt") #P"R.txt"))
+  (assert* (path:= (path:catfile #P"a/" #P"/b/" #P"R.txt") #P"/b/R.txt"))
+
+  
   (let ((fad-dir (merge-pathnames (pathname-as-directory "fad-test")
                                   *tmp-dir*)))
     (delete-directory-and-files fad-dir :if-does-not-exist :ignore)
