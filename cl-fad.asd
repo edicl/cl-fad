@@ -43,6 +43,7 @@
 (asdf:defsystem #:cl-fad-test
   :version "0.6.4"
   :serial t
-  :components ((:file "fad.test")
-               (:file "temporary-files.test"))
+  :components ((:file "packages.test")
+               (:file "fad.test" :depends-on ("packages.test"))
+               (:file "temporary-files.test" :depends-on ("packages.test")))
   :depends-on (:cl-fad :unit-test :cl-ppcre))

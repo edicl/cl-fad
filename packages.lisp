@@ -85,7 +85,3 @@ system intensive code easier to read (for unix people at least).")
            #:absolute-p
            #:relative-p
            #:root-p))
-
-(defpackage :cl-fad-test
-  (:use :cl :cl-fad :unit-test)
-  (:export :test))
