@@ -57,7 +57,15 @@
            :merge-pathnames-as-directory
            :merge-pathnames-as-file           
            
-           :walk-directory))
+           :walk-directory
+
+           :open-temporary
+           :with-output-to-temporary-file
+           :with-open-temporary-file
+           :*default-template*
+           :invalid-temporary-pathname-template
+           :cannot-create-temporary-file
+           #+win32 #:missing-temp-environment-variable))
 
 (defpackage :path
   (:use)
@@ -79,5 +87,5 @@ system intensive code easier to read (for unix people at least).")
            #:root-p))
 
 (defpackage :cl-fad-test
-  (:use :cl :cl-fad)
+  (:use :cl :cl-fad :unit-test)
   (:export :test))

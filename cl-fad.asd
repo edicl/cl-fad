@@ -36,5 +36,13 @@
                #+:cormanlisp (:file "corman")
                #+:openmcl (:file "openmcl")
                (:file "fad")
-               (:file "path"))
-  :depends-on (#+sbcl :sb-posix))
+               (:file "path" :depends-on ("fad"))
+               (:file "temporary-files" :depends-on ("fad")))
+  :depends-on (#+sbcl :sb-posix :bordeaux-threads :alexandria))
+
+(asdf:defsystem #:cl-fad-test
+  :version "0.6.4"
+  :serial t
+  :components ((:file "fad.test")
+               (:file "temporary-files.test"))
+  :depends-on (:cl-fad :unit-test :cl-ppcre))
