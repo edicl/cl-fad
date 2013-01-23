@@ -1,5 +1,7 @@
-Version 0.6.5
-xxx
+Version 0.7.0
+2013-01-23
+Tests, pathname manipulation functions (Marco Baringer)
+Temporary files (merged by Marco Baringer)
 Fix symlink behaviour for some platforms (Mihai Bazon and Janis Dzerins)
 
 Version 0.6.4

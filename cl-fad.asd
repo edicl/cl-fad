@@ -30,7 +30,7 @@
 #+:allegro (cl:require :osi)
 
 (asdf:defsystem #:cl-fad
-  :version "0.6.4"
+  :version "0.7.0"
   :serial t
   :components ((:file "packages")
                #+:cormanlisp (:file "corman")
@@ -41,7 +41,7 @@
   :depends-on (#+sbcl :sb-posix :bordeaux-threads :alexandria))
 
 (asdf:defsystem #:cl-fad-test
-  :version "0.6.4"
+  :version "0.7.0"
   :serial t
   :components ((:file "packages.test")
                (:file "fad.test" :depends-on ("packages.test"))
