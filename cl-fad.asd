@@ -31,6 +31,7 @@
 
 (asdf:defsystem #:cl-fad
   :version "0.7.0"
+  :description "Portable pathname library"
   :serial t
   :components ((:file "packages")
                #+:cormanlisp (:file "corman")
