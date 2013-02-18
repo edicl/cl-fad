@@ -30,7 +30,7 @@
 #+:allegro (cl:require :osi)
 
 (asdf:defsystem #:cl-fad
-  :version "0.7.0"
+  :version "0.7.1"
   :description "Portable pathname library"
   :serial t
   :components ((:file "packages")
@@ -42,7 +42,7 @@
   :depends-on (#+sbcl :sb-posix :bordeaux-threads :alexandria))
 
 (asdf:defsystem #:cl-fad-test
-  :version "0.7.0"
+  :version "0.7.1"
   :serial t
   :components ((:file "packages.test")
                (:file "fad.test" :depends-on ("packages.test"))
