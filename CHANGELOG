@@ -1,3 +1,7 @@
+Version 0.7.2
+2013-07-03
+Fix documentation glitch (inconsistent download link) (Luís Oliveira)
+
 Version 0.7.1
 2013-02-18
 Fix for LispWorks (R. Wilker)
