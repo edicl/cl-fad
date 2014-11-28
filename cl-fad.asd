@@ -42,7 +42,6 @@
   :depends-on (#+sbcl :sb-posix :bordeaux-threads :alexandria))
 
 (asdf:defsystem #:cl-fad-test
-  :version "0.7.2"
   :serial t
   :components ((:file "packages.test")
                (:file "fad.test" :depends-on ("packages.test"))
