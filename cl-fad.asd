@@ -30,7 +30,7 @@
 #+:allegro (cl:require :osi)
 
 (asdf:defsystem #:cl-fad
-  :version "0.7.3"
+  :version "0.7.4"
   :description "Portable pathname library"
   :serial t
   :components ((:file "packages")
