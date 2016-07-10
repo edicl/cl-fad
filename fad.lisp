@@ -233,9 +233,8 @@ checked for compatibility of their types."
   (let ((buf (make-array *stream-buffer-size*
                          :element-type (stream-element-type from))))
     (loop
-       (let ((pos #-(or :clisp :cmu) (read-sequence buf from)
-                  #+:clisp (ext:read-byte-sequence buf from :no-hang nil)
-                  #+:cmu (sys:read-n-bytes from buf 0 *stream-buffer-size* nil)))
+       (let ((pos #-:clisp (read-sequence buf from)
+                  #+:clisp (ext:read-byte-sequence buf from :no-hang nil)))
          (when (zerop pos) (return))
          (write-sequence buf to :end pos))))
   (values))
