@@ -332,7 +332,9 @@ by this function is a directory name which contains PATHNAME.
 The root directory, #P\"/\", is its own parent. The parent directory
 of a filename is the parent of the filename's dirname."
   (canonical-pathname
-   (make-pathname
+   (make-pathname :defaults pathname
+                  :name nil
+                  :type nil
                   :directory (if (pathname-root-p pathname)
                                  (list :absolute)
                                  (append (or (pathname-directory pathname)
