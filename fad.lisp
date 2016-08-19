@@ -455,21 +455,18 @@ Examples:
             (,b (funcall ,k ,b)))
        (labels ((components-are (test)
                   (and (funcall test ,a) (funcall test ,b)))
-
                 (components-are-member (values)
                   (and (member ,a values :test #'eql)
                        (member ,b values :test #'eql)
                        (eql ,a ,b)))
-                
                 (components-are-string= ()
                   (and (stringp ,a) (stringp ,b) (string= ,a ,b)))
-
                 (components-are-every (test)
                   (and (consp ,a)
                        (consp ,b)
                        (every test ,a ,b))))
-
-         
+         (declare (ignorable #'components-are #'components-are-member
+                             #'components-are-string= #'components-are-every))
          (if (or ,@body)
              (values t ,a ,b)
              nil)))))
@@ -479,9 +476,7 @@ Examples:
     (eq a b)
     (components-are-member '(nil :unspecific))
     (components-are-string=)
-    (and (consp a)
-         (consp b)
-         (components-are-every #'string=))))
+    (components-are-every #'string=)))
 
 (defun pathname-device-equal (a b)
   (with-component-testers (a b #'pathname-device)
