@@ -391,25 +391,24 @@ Examples:
     (merge-pathnames-as-directory #P\"foo/\" #P\"bar/\") == #P\"foo/bar/\"
     (merge-pathnames-as-directory #P\"foo/\" #P\"./bar/\") == #P\"foo/./bar/\"
     (merge-pathnames-as-directory #P\"foo/\" #P\"/bar/\") == #P\"/bar/\"
-    (merge-pathnames-as-directory #P\"foo/\" #P\"/bar/\" #P'quux/file.txt) == #P\"/bar/quux/\"
+    (merge-pathnames-as-directory #P\"foo/\" #P\"/bar/\" #P\"quux/file.txt\") == #P\"/bar/quux/\"
 "
-  (when (null pathnames)
-    (return-from merge-pathnames-as-directory
-      (make-pathname :defaults *default-pathname-defaults* :directory nil :name nil :type nil)))
-  (let* ((pathnames (mapcar #'pathname pathnames)))
-    (loop
-       with defaults = (first pathnames)
-       with dir = (pathname-directory defaults)
-       for pathname in (rest pathnames)
-       for type = (first (pathname-directory pathname))
-       do (ecase type
-            ((nil) ;; this is equivalent to (:relative) == ".", so, for this function, just do nothing.
-             )
-            (:absolute
-             (setf dir (pathname-directory pathname)))
-            (:relative
-             (setf dir (append dir (rest (pathname-directory pathname))))))
-       finally (return (make-pathname :defaults defaults :directory dir :name nil :type nil)))))
+  (if pathnames
+      (let* ((pathnames (mapcar #'pathname pathnames))
+             (defaults (first pathnames))
+             (dir (pathname-directory defaults)))
+        (loop for pathname in (rest pathnames)
+              for directory = (pathname-directory pathname)
+              do (ecase (first directory)
+                   ;; this is equivalent to (:relative) == ".", so,
+                   ;; for this function, just do nothing.
+                   ((nil)) 
+                   (:absolute
+                    (setf dir directory))
+                   (:relative
+                    (setf dir (append dir (rest directory))))))
+        (make-pathname :defaults defaults :directory dir :name nil :type nil))
+      (make-pathname)))
 
 (defun merge-pathnames-as-file (&rest pathnames)
     "Given a list of, probably relative, pathnames returns a single
@@ -426,27 +425,18 @@ Examples:
     (merge-pathnames-as-file #P\"foo/\" #P\"bar.txt\") == #P\"foo/bar.txt\"
     (merge-pathnames-as-file #P\"foo/\" #P\"./bar.txt\") == #P\"foo/./bar.txt\"
     (merge-pathnames-as-file #P\"foo/\" #P\"/bar/README\") == #P\"/bar/README\"
-    (merge-pathnames-as-file #P\"/foo/\" #P\"/bar/\" #P'quux/file.txt) == #P\"/bar/quux/file.txt\"
+    (merge-pathnames-as-file #P\"/foo/\" #P\"/bar/\" #P\"quux/file.txt\") == #P\"/bar/quux/file.txt\"
 "
-    (case (length pathnames)
-      (0
-       (when (null pathnames)
-         (make-pathname :defaults *default-pathname-defaults*
-                        :directory nil
-                        :name nil
-                        :type nil)))
-      (1
-       (pathname-as-file (first pathnames)))
-      (t
-       (let* ((defaults (pop pathnames))
-              (file-name-part (first (last pathnames)))
-              (file-name-directory (make-pathname :defaults file-name-part
-                                                  :name nil :type nil))
-              (pathnames (butlast pathnames)))
-         (make-pathname :defaults (apply #'merge-pathnames-as-directory (append (list defaults) pathnames (list file-name-directory)))
-                        :name (pathname-name file-name-part)
-                        :type (pathname-type file-name-part)
-                        :version (pathname-version file-name-part))))))
+    (cond ((null pathnames)
+           (make-pathname))
+          ((null (cdr pathnames))
+           (pathname-as-file (first pathnames)))
+          (t
+           (let ((file-name-part (first (last pathnames))))
+             (make-pathname :defaults (apply #'merge-pathnames-as-directory pathnames)
+                            :name (pathname-name file-name-part)
+                            :type (pathname-type file-name-part)
+                            :version (pathname-version file-name-part))))))
 
 (defmacro with-component-testers ((a b key) &body body)
   (let ((k (gensym)))
