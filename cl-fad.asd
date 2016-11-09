@@ -39,7 +39,7 @@
                (:file "fad")
                (:file "path" :depends-on ("fad"))
                (:file "temporary-files" :depends-on ("fad")))
-  :depends-on (#+sbcl :sb-posix :bordeaux-threads :alexandria))
+  :depends-on (#+sbcl :sb-posix #-lispworks :bordeaux-threads :alexandria))
 
 (asdf:defsystem #:cl-fad-test
   :serial t

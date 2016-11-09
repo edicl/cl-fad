@@ -71,10 +71,20 @@
 
 ;; locking for multi-threaded operation with unsafe random function
 
+#-lispworks
 (defvar *create-file-name-lock* (bordeaux-threads:make-lock "Temporary File Name Creation Lock"))
 
+#-lispworks
 (defmacro with-file-name-lock-held (() &body body)
   `(bordeaux-threads:with-lock-held (*create-file-name-lock*)
+     ,@body))
+
+#+lispworks
+(defvar *create-file-name-lock* (mp:make-lock :name "Temporary File Name Creation Lock"))
+
+#+lispworks
+(defmacro with-file-name-lock-held (() &body body)
+  `(mp:with-lock (*create-file-name-lock*)
      ,@body))
 
 (defun generate-random-string ()
