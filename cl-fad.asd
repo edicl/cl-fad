@@ -33,6 +33,7 @@
   :version "0.7.4"
   :description "Portable pathname library"
   :serial t
+  :license "BSD-2-Clause"
   :components ((:file "packages")
                #+:cormanlisp (:file "corman")
                #+:openmcl (:file "openmcl")
