@@ -65,6 +65,7 @@
            :*default-template*
            :invalid-temporary-pathname-template
            :cannot-create-temporary-file
+           :get-default-temporary-directory
            #+win32 #:missing-temp-environment-variable))
 
 (defpackage :path
