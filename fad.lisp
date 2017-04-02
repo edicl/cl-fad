@@ -242,7 +242,7 @@ checked for compatibility of their types."
 (defun copy-file (from to &key overwrite)
   "Copies the file designated by the non-wild pathname designator FROM
 to the file designated by the non-wild pathname designator TO.  If
-OVERWRITE is true overwrites the file designtated by TO if it exists."
+OVERWRITE is true overwrites the file designated by TO if it exists."
   #+:allegro (excl.osi:copy-file from to :overwrite overwrite)
   #-:allegro
   (let ((element-type #-:cormanlisp '(unsigned-byte 8)
@@ -340,7 +340,7 @@ of a filename is the parent of the filename's dirname."
                                          (list :back))))))
 
 (defun canonical-pathname (pathname)
-  "Remove reduntant information from PATHNAME.
+  "Remove redundant information from PATHNAME.
 
 This simply walks down PATHNAME's pathname-directory and drops \".\"
 directories, removes :back and its preceding element.
@@ -371,7 +371,7 @@ not :BACK, the actual utility of the function is limited."
        finally (return (make-pathname :defaults pathname :directory (nreverse canon-dir))))))
 
 (defun merge-pathnames-as-directory (&rest pathnames)
-  "Given a list of, probably relative, pathnames returns a single
+  "Given a list of (probably relative) pathnames, this returns a single
 directory pathname containing the logical concatenation of them all.
 
 The returned value is the current directory if one were to cd into

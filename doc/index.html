@@ -236,7 +236,7 @@ directory (in other words, a directory which is its own parent).</p>
 
 <p><br>[Function]<br><a class=none name='canonical-pathname'><b>canonical-pathname</b> <i>pathname</i> =&gt; <i>result</i></a>
 <blockquote>
-<p>Remove reduntant information from PATHNAME.</p>
+<p>Remove redundant information from PATHNAME.</p>
 
 <p>This simply walks down <code>PATHNAME</code>&#039;s
 pathname-directory and drops &quot;.&quot; directories, removes :back
@@ -255,7 +255,7 @@ utility of the function is limited.</p>
 
 <p><br>[Function]<br><a class=none name='merge-pathnames-as-directory'><b>merge-pathnames-as-directory</b> <i><tt>&amp;rest</tt> pathnames</i> =&gt; <i>result</i></a>
 <blockquote>
-<p>Given a list of, probably relative, pathnames returns a single
+<p>Given a list of (probably relative) pathnames, this returns a single
 directory pathname containing the logical concatenation of them all.</p>
 
 <p>The returned value is the current directory if one were to cd into
@@ -504,7 +504,7 @@ CL-USER&gt; (temporary-file:<code xmlns=""><a href="#with-open-temporary-file">w
   <h5>Dictionary</h5>
 
 
-    <p xmlns="">[Function]<br><a class="none" name="open-temporary"><b>open-temporary</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">&amp;rest open-arguments &amp;key template generate-random-string max-tries &amp;allow-other-keys</clix:lambda-list></i>
+    <p xmlns="">[Function]<br><a class="none" name="open-temporary"><b>open-temporary</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc"><tt>&amp;rest</tt> open-arguments <tt>&amp;key</tt> template generate-random-string max-tries <tt>&amp;allow-other-keys</tt></clix:lambda-list></i>
           =&gt;
           <i>stream</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
         <p xmlns="http://www.w3.org/1999/xhtml">
@@ -551,7 +551,7 @@ CL-USER&gt; (temporary-file:<code xmlns=""><a href="#with-open-temporary-file">w
           <a xmlns="" href="http://www.lispworks.com/documentation/HyperSpec/Body/f_open.htm">open</a>.
         </p>
       </clix:description></blockquote></p>
-    <p xmlns="">[Macro]<br><a class="none" name="with-output-to-temporary-file"><b>with-output-to-temporary-file</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(stream &amp;rest args) &amp;body body</clix:lambda-list></i>
+    <p xmlns="">[Macro]<br><a class="none" name="with-output-to-temporary-file"><b>with-output-to-temporary-file</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(stream <tt>&amp;rest</tt> args) <tt>&amp;body</tt> body</clix:lambda-list></i>
           =&gt;
           <i>pathname</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
         Create a temporary file using
@@ -562,7 +562,7 @@ CL-USER&gt; (temporary-file:<code xmlns=""><a href="#with-open-temporary-file">w
         created.  See <code xmlns=""><a href="#open-temporary">open-temporary</a></code> for
         permitted options.
       </clix:description></blockquote></p>
-    <p xmlns="">[Macro]<br><a class="none" name="with-open-temporary-file"><b>with-open-temporary-file</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(stream &amp;rest args &amp;key keep &amp;allow-other-keys) &amp;body body</clix:lambda-list></i>
+    <p xmlns="">[Macro]<br><a class="none" name="with-open-temporary-file"><b>with-open-temporary-file</b> <i><clix:lambda-list xmlns:clix="http://bknr.net/clixdoc">(stream <tt>&amp;rest</tt> args <tt>&amp;key</tt> keep <tt>&amp;allow-other-keys</tt>) <tt>&amp;body</tt> body</clix:lambda-list></i>
           =&gt;
           <i>values</i></a><blockquote><clix:description xmlns:clix="http://bknr.net/clixdoc">
         Create a temporary file using
@@ -624,7 +624,7 @@ CL-USER&gt; (temporary-file:<code xmlns=""><a href="#with-open-temporary-file">w
 <blockquote><br>
 Copies the file designated by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>from</i></code> to the
 file designated by the non-wild <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_p.htm#pathname_designator">pathname designator</a> <code><i>to</i></code>.  If <code><i>overwrite</i></code> is <em>true</em> (the default is <code>NIL</code>)
-overwrites the file designtated by <code><i>to</i></code> if it exists.
+overwrites the file designated by <code><i>to</i></code> if it exists.
 </blockquote>
 
 <p><br>[Function]
@@ -640,7 +640,7 @@ true (which is the default), the function will signal an error if the
 element types aren't the same.
 </blockquote>
 <p><br>[Function]
-<br><a class=none name="delete-directory-and-files"><b>delete-directory-and-files</b> <i> dirname<tt>&amp;key</tt> if-does-not-exist</i> =&gt; |</a>
+<br><a class=none name="delete-directory-and-files"><b>delete-directory-and-files</b> <i> dirname <tt>&amp;key</tt> if-does-not-exist</i> =&gt; |</a>
 
 <blockquote><br>
 <p>
