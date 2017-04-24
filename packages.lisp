@@ -37,7 +37,8 @@
            :delete-directory-and-files)
   #+:abcl
   (:shadow :list-directory)
-  (:export :copy-file
+  (:export 
+           :copy-file
            :copy-stream
            :delete-directory-and-files
            :directory-exists-p
@@ -59,7 +60,9 @@
            
            :walk-directory
 
-           :open-temporary
+           :get-default-temporary-directory
+	   :generate-random-string
+	   :open-temporary
            :with-output-to-temporary-file
            :with-open-temporary-file
            :*default-template*
