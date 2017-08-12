@@ -102,7 +102,8 @@ and CCL."
     (concatenate 'list
                  (directory (merge-pathnames (pathname "*/") dir))
                  (directory (merge-pathnames (pathname "*.*") dir))))
-    #-(or :ecl :clasp) (let ((wildcard (directory-wildcard dirname)))
+  #-(or :ecl :clasp)
+  (let ((wildcard (directory-wildcard dirname)))
     #+:abcl (system::list-directory dirname)
     #+:sbcl (directory wildcard :resolve-symlinks follow-symlinks)
     #+(or :cmu :scl :lispworks) (directory wildcard)
@@ -308,7 +309,7 @@ might be removed instead!  This is currently fixed for SBCL and CCL."
                            #+:openmcl (cl-fad-ccl:delete-directory file)
                            #+:cormanlisp (win32:delete-directory file)
                            #+:ecl (si:rmdir file)
-                           #+:clasp (core:rmdir)
+                           #+:clasp (core:rmdir file)
                            #+(or :abcl :digitool) (delete-file file))
                           (t (delete-file file))))
                   :follow-symlinks nil
