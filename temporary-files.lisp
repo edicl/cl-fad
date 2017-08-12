@@ -33,7 +33,8 @@
               (unless (ccl:%null-ptr-p value)
                 (ccl:%get-cstring value))))
     #+sbcl (sb-ext:posix-getenv x)
-    #-(or abcl allegro clisp clozure cmu cormanlisp ecl gcl lispworks mcl sbcl scl xcl)
+    #+clasp (ext:getenv x)
+    #-(or abcl allegro clisp clozure cmu cormanlisp ecl gcl lispworks mcl sbcl scl xcl clasp)
     (error "~S is not supported on your implementation" 'getenv))
 
   (defun directory-from-environment (environment-variable-name)

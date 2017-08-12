@@ -97,12 +97,12 @@ and CCL."
   (declare (ignorable follow-symlinks))
   (when (wild-pathname-p dirname)
     (error "Can only list concrete directory names."))
-  #+:ecl
+  #+(or :ecl :clasp)
   (let ((dir (pathname-as-directory dirname)))
     (concatenate 'list
                  (directory (merge-pathnames (pathname "*/") dir))
                  (directory (merge-pathnames (pathname "*.*") dir))))
-  #-:ecl
+  #-(or :ecl :clasp)
   (let ((wildcard (directory-wildcard dirname)))
     #+:abcl (system::list-directory dirname)
     #+:sbcl (directory wildcard :resolve-symlinks follow-symlinks)
@@ -113,7 +113,7 @@ and CCL."
                     (directory (clisp-subdirectories-wildcard wildcard)))
     #+:cormanlisp (nconc (directory wildcard)
                          (cl::directory-subdirs dirname)))
-  #-(or :sbcl :cmu :scl :lispworks :openmcl :allegro :clisp :cormanlisp :ecl :abcl :digitool)
+  #-(or :sbcl :cmu :scl :lispworks :openmcl :allegro :clisp :cormanlisp :ecl :abcl :digitool :clasp)
   (error "LIST-DIRECTORY not implemented"))
 
 (defun pathname-as-file (pathspec)
@@ -135,7 +135,7 @@ and CCL."
 exists and returns its truename if this is the case, NIL otherwise.
 The truename is returned in `canonical' form, i.e. the truename of a
 directory is returned as if by PATHNAME-AS-DIRECTORY."
-  #+(or :sbcl :lispworks :openmcl :ecl :digitool) (probe-file pathspec)
+  #+(or :sbcl :lispworks :openmcl :ecl :digitool clasp) (probe-file pathspec)
   #+:allegro (or (excl:probe-directory (pathname-as-directory pathspec))
                  (probe-file pathspec))
   #+(or :cmu :scl :abcl) (or (probe-file (pathname-as-directory pathspec))
@@ -149,7 +149,7 @@ directory is returned as if by PATHNAME-AS-DIRECTORY."
                      directory-form)))
                (ignore-errors
                  (probe-file (pathname-as-file pathspec))))
-  #-(or :sbcl :cmu :scl :lispworks :openmcl :allegro :clisp :cormanlisp :ecl :abcl :digitool)
+  #-(or :sbcl :cmu :scl :lispworks :openmcl :allegro :clisp :cormanlisp :ecl :abcl :digitool :sbcl :clasp)
   (error "FILE-EXISTS-P not implemented"))
 
 (defun directory-exists-p (pathspec)
@@ -309,6 +309,7 @@ might be removed instead!  This is currently fixed for SBCL and CCL."
                            #+:openmcl (cl-fad-ccl:delete-directory file)
                            #+:cormanlisp (win32:delete-directory file)
                            #+:ecl (si:rmdir file)
+                           #+:clasp (core:rmdir file)
                            #+(or :abcl :digitool) (delete-file file))
                           (t (delete-file file))))
                   :follow-symlinks nil
