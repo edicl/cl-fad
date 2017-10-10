@@ -29,7 +29,7 @@
 
 #+:allegro (cl:require :osi)
 
-(asdf:defsystem #:cl-fad
+(defsystem "cl-fad"
   :version "0.7.4"
   :description "Portable pathname library"
   :serial t
@@ -40,11 +40,15 @@
                (:file "fad")
                (:file "path" :depends-on ("fad"))
                (:file "temporary-files" :depends-on ("fad")))
-  :depends-on (#+sbcl :sb-posix :bordeaux-threads :alexandria))
+  :depends-on (#+sbcl "sb-posix" "bordeaux-threads" "alexandria")
+  :in-order-to ((test-op (test-op "cl-fad/test"))))
 
-(asdf:defsystem #:cl-fad-test
+(defsystem "cl-fad/test"
   :serial t
   :components ((:file "packages.test")
                (:file "fad.test" :depends-on ("packages.test"))
                (:file "temporary-files.test" :depends-on ("packages.test")))
-  :depends-on (:cl-fad :unit-test :cl-ppcre))
+  :depends-on ("cl-fad" "unit-test" "cl-ppcre")
+  :perform (test-op (o c)
+             (symbol-call :cl-fad-test :test)
+             (symbol-call :unit-test :run-all-tests))) ;; for temporary-files
