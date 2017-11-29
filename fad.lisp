@@ -146,7 +146,7 @@ directory is returned as if by PATHNAME-AS-DIRECTORY."
   #+:clisp (or (ignore-errors
                  (let ((directory-form (pathname-as-directory pathspec)))
                    (when (ext:probe-directory directory-form)
-                     directory-form)))
+                     (truename directory-form))))
                (ignore-errors
                  (probe-file (pathname-as-file pathspec))))
   #-(or :sbcl :cmu :scl :lispworks :openmcl :allegro :clisp :cormanlisp :ecl :abcl :digitool :clasp)
