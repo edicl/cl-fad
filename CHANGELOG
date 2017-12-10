@@ -1,3 +1,8 @@
+Version 0.7.5
+2017-12-10
+Fix FILE-EXISTS-P to return directory truename in CLISP (chaitanyagupta)
+Added support for Common Lisp implementation CLASP. (dg1sbg)
+
 Version 0.7.4
 2016-07-10
 Merge pull request #13 from vibs29/master (Hans Hübner)
