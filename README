@@ -1,5 +1,5 @@
-Complete documentation for CL-FAD can be found in the 'doc'
-directory.
+Complete documentation for CL-FAD can be found in the 'docs'
+directory or at <https://edicl.github.io/cl-fad/>.
 
 CL-FAD also supports Nikodemus Siivola's HYPERDOC, see
 <http://common-lisp.net/project/hyperdoc/> and
