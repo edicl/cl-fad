@@ -1,3 +1,8 @@
+Version 0.7.6
+2019-07-28
+Clisp has renamed ext:delete-dir to ext:delete-directory.
+Fix get-default-temporary-directory on lispworks.
+
 Version 0.7.5
 2017-12-10
 Fix FILE-EXISTS-P to return directory truename in CLISP (chaitanyagupta)

@@ -30,7 +30,7 @@
 #+:allegro (cl:require :osi)
 
 (asdf:defsystem #:cl-fad
-  :version "0.7.5"
+  :version "0.7.6"
   :description "Portable pathname library"
   :serial t
   :license "BSD-2-Clause"
