@@ -106,7 +106,8 @@ and CCL."
   (let ((wildcard (directory-wildcard dirname)))
     #+:abcl (system::list-directory dirname)
     #+:sbcl (directory wildcard :resolve-symlinks follow-symlinks)
-    #+(or :cmu :scl :lispworks) (directory wildcard)
+    #+(or :cmu :scl) (directory wildcard)
+    #+:lispworks (directory wildcard :link-transparency follow-symlinks)
     #+(or :openmcl :digitool) (directory wildcard :directories t :follow-links follow-symlinks)
     #+:allegro (directory wildcard :directories-are-files nil)
     #+:clisp (nconc (directory wildcard :if-does-not-exist :keep)
@@ -403,7 +404,7 @@ Examples:
               do (ecase (first directory)
                    ;; this is equivalent to (:relative) == ".", so,
                    ;; for this function, just do nothing.
-                   ((nil)) 
+                   ((nil))
                    (:absolute
                     (setf dir directory))
                    (:relative
