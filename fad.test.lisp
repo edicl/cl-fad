@@ -53,7 +53,9 @@
   (assert* (path:= (path:catfile #P"R.txt") #P"R.txt"))
   (assert* (path:= (path:catfile #P"a/" #P"/b/" #P"R.txt") #P"/b/R.txt"))
 
-  
+  (assert* (handler-case (progn (pathname-as-directory "**/") nil)
+             (error () t)))
+
   (let ((fad-dir (merge-pathnames (pathname-as-directory "fad-test")
                                   *tmp-dir*)))
     (delete-directory-and-files fad-dir :if-does-not-exist :ignore)
@@ -61,7 +63,31 @@
     (assert* (directory-pathname-p (pathname *tmp-dir*)))
     (let ((foo-file (merge-pathnames "foo.lisp"
                                      fad-dir)))
+      (assert* (equal fad-dir (pathname-directory-pathname fad-dir)))
+      (assert* (equal fad-dir (pathname-directory-pathname foo-file)))
+      (assert* (equal #P"/" (pathname-parent-directory #P"/")))
+      (assert* (equal (make-pathname :directory '(:relative :back))
+                      (pathname-parent-directory (make-pathname :directory '(:relative "foo" :back)))))
+      (assert* (equal (make-pathname :directory '(:relative :back))
+                      (pathname-parent-directory (make-pathname))))
+      (assert* (pathname-directory-equal (make-pathname) (make-pathname)))
+      (assert* (not (pathname-directory-equal (make-pathname) (make-pathname :directory '(:absolute)))))
+      (assert* (not (pathname-directory-equal (make-pathname :directory '(:absolute)) (make-pathname))))
+      (assert* (pathname-directory-equal (make-pathname :directory '(:absolute) :name "foo")
+                                         (make-pathname :directory '(:absolute) :name "bar")))
+      (assert* (not (pathname-equal nil nil)))
+      (assert* (not (pathname-equal #p"foo" nil)))
+      (assert* (not (pathname-equal nil #p"foo")))
+      (assert* (pathname-equal #P"/foo/bar.txt" #P"/foo/bar.txt"))
+      (assert* (not (pathname-equal #P"/foo/bar.txt" #P"/foo2/bar.txt")))
+      (assert* (not (pathname-equal #P"/foo/bar.txt" #P"/foo/bar2.txt")))
+      (assert* (not (pathname-equal #P"/foo/bar.txt" #P"/foo/bar.bin")))
+      (assert* (pathname-absolute-p (make-pathname :directory '(:absolute "foo"))))
+      (assert* (not (pathname-absolute-p (make-pathname :directory '(:relative "foo")))))
+      (assert* (not (pathname-relative-p (make-pathname :directory '(:absolute "foo")))))
+      (assert* (pathname-relative-p (make-pathname :directory '(:relative "foo"))))
       (assert* (not (directory-pathname-p foo-file)))
+      (assert* (not (directory-pathname-p (make-pathname :name nil :defaults foo-file))))
       (assert* (not (file-exists-p foo-file)))
       (assert* (not (file-exists-p fad-dir)))
       (with-open-file (out (ensure-directories-exist foo-file)
@@ -97,6 +123,7 @@
       ;; files : 5
       ;; dirs : 3
       (let ((file-counter 0)
+            (file-counter-2 1)
             (file-and-dir-counter 0)
             (bar-counter 0))
         (walk-directory fad-dir
@@ -104,6 +131,12 @@
                           (declare (ignore file))
                           (incf file-counter)))
         ;; file-counter => 5
+        (walk-directory fad-dir
+                        (lambda (file)
+                          (declare (ignore file))
+                          (incf file-counter-2))
+                        :if-does-not-exist :ignore)
+        ;; file-counter-2 => 6
         (walk-directory fad-dir
                         (lambda (file)
                           (declare (ignore file))
@@ -118,6 +151,10 @@
                                 (string= (pathname-name file)
                                          "bar"))
                         :directories t)
+        (assert* (handler-case (progn (walk-directory fad-dir #'identity
+                                                      :if-does-not-exist (gensym))
+                                      nil)
+                   (error () t)))
         ;; do not traverse the baz directory
         (walk-directory fad-dir
                         (lambda (file)
@@ -130,6 +167,7 @@
                         :directories :breadth-first)
         ;; file-and-dir-counter => 5 + 3 + 2 dirs + 3 files
         (assert* (= 5 file-counter))
+        (assert* (= 6 file-counter-2))
         (assert* (= 13 file-and-dir-counter))
         (assert* (= 2 bar-counter)))
       (let ((bar-file (merge-pathnames "bar.lisp" fad-dir)))
@@ -154,4 +192,21 @@
     (delete-directory-and-files fad-dir :if-does-not-exist :error)
     (assert* (not (file-exists-p fad-dir)))
     (assert* (not (directory-exists-p fad-dir))))
+
+  (unless (subtypep 'character 'base-char)
+    (with-input-from-string (is (coerce "abcdef" '(vector character)))
+      (with-output-to-string (os nil :element-type 'base-char)
+        (unless (subtypep (stream-element-type is) (stream-element-type os))
+          (assert* (handler-case (progn (copy-stream is os) nil)
+                     (error () t)))))))
+
+  (assert* (handler-case (progn (list-directory #p"*/") nil)
+             (error () t)))
+  (assert* (handler-case (progn (pathname-as-file "*/") nil)
+             (error () t)))
+  (assert* (handler-case (progn (walk-directory #p"does-not-exist/" #'identity) nil)
+             (error () t)))
+  (assert* (handler-case (progn (walk-directory #p"does-not-exist/" #'identity :if-does-not-exist :ignore) t)
+             (error () nil)))
+
   (format t "All tests passed.~%"))
