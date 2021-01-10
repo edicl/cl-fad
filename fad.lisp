@@ -229,7 +229,7 @@ of FROM is reached, in blocks of *stream-buffer-size*.  The streams
 should have the same element type.  If CHECKP is true, the streams are
 checked for compatibility of their types."
   (when checkp
-    (unless (subtypep (stream-element-type to) (stream-element-type from))
+    (unless (subtypep (stream-element-type from) (stream-element-type to))
       (error "Incompatible streams ~A and ~A." from to)))
   (let ((buf (make-array *stream-buffer-size*
                          :element-type (stream-element-type from))))
