@@ -29,8 +29,8 @@
 
 #+:allegro (cl:require :osi)
 
-(defsystem "cl-fad"
-  :version "0.7.4"
+(asdf:defsystem "cl-fad"
+  :version "0.7.6"
   :description "Portable pathname library"
   :serial t
   :license "BSD-2-Clause"

@@ -106,7 +106,8 @@ and CCL."
   (let ((wildcard (directory-wildcard dirname)))
     #+:abcl (system::list-directory dirname)
     #+:sbcl (directory wildcard :resolve-symlinks follow-symlinks)
-    #+(or :cmu :scl :lispworks) (directory wildcard)
+    #+(or :cmu :scl) (directory wildcard)
+    #+:lispworks (directory wildcard :link-transparency follow-symlinks)
     #+(or :openmcl :digitool) (directory wildcard :directories t :follow-links follow-symlinks)
     #+:allegro (directory wildcard :directories-are-files nil)
     #+:clisp (nconc (directory wildcard :if-does-not-exist :keep)
@@ -146,7 +147,7 @@ directory is returned as if by PATHNAME-AS-DIRECTORY."
   #+:clisp (or (ignore-errors
                  (let ((directory-form (pathname-as-directory pathspec)))
                    (when (ext:probe-directory directory-form)
-                     directory-form)))
+                     (truename directory-form))))
                (ignore-errors
                  (probe-file (pathname-as-file pathspec))))
   #-(or :sbcl :cmu :scl :lispworks :openmcl :allegro :clisp :cormanlisp :ecl :abcl :digitool :clasp)
@@ -228,7 +229,7 @@ of FROM is reached, in blocks of *stream-buffer-size*.  The streams
 should have the same element type.  If CHECKP is true, the streams are
 checked for compatibility of their types."
   (when checkp
-    (unless (subtypep (stream-element-type to) (stream-element-type from))
+    (unless (subtypep (stream-element-type from) (stream-element-type to))
       (error "Incompatible streams ~A and ~A." from to)))
   (let ((buf (make-array *stream-buffer-size*
                          :element-type (stream-element-type from))))
@@ -305,7 +306,7 @@ might be removed instead!  This is currently fixed for SBCL and CCL."
                                     (unless ok
                                       (error "~@<Error deleting ~S: ~A~@:>"
                                              file (unix:get-unix-error-msg errno))))
-                           #+:clisp (ext:delete-dir file)
+                           #+:clisp (ext:delete-directory file)
                            #+:openmcl (cl-fad-ccl:delete-directory file)
                            #+:cormanlisp (win32:delete-directory file)
                            #+:ecl (si:rmdir file)
@@ -403,7 +404,7 @@ Examples:
               do (ecase (first directory)
                    ;; this is equivalent to (:relative) == ".", so,
                    ;; for this function, just do nothing.
-                   ((nil)) 
+                   ((nil))
                    (:absolute
                     (setf dir directory))
                    (:relative

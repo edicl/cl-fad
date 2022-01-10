@@ -42,25 +42,23 @@
       (when (plusp (length string))
         (pathname-as-directory string))))
 
-  #+win32
+  #+(or mswindows win32)
   (define-condition missing-temp-environment-variable (error)
     ()
     (:report (lambda (condition stream)
                (declare (ignore condition))
                (format stream "the TEMP environment variable has not been found, cannot continue"))))
 
-  #+win32
+  #+(or mswindows win32)
   (defun get-default-temporary-directory ()
     (or (directory-from-environment "TEMP")
         (error 'missing-temp-environment-variable)))
 
-  #-win32
+  #-(or mswindows win32)
   (defun get-default-temporary-directory ()
     (or (directory-from-environment "TMPDIR")
-        #-clisp
-        (probe-file #P"/tmp/")
-        #+clisp
-        (and (ext:probe-directory #P"/tmp/")
+        (and #-clisp (probe-file #P"/tmp/")
+             #+clisp (ext:probe-directory #P"/tmp/")
              #P"/tmp/")))
 
   (handler-case
