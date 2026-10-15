@@ -35,9 +35,9 @@
     #+sbcl (sb-ext:posix-getenv x)
     #+clasp (ext:getenv x)
     #+dotcl (dotcl:getenv x)
-    #+cl-amiga (ext:getenv x)
+    #+amilisp (ext:getenv x)
     #-(or abcl allegro clisp clozure cmu cormanlisp ecl gcl lispworks mcl sbcl scl xcl clasp
-          dotcl cl-amiga)
+          dotcl amilisp)
     (error "~S is not supported on your implementation" 'getenv))
 
   (defun directory-from-environment (environment-variable-name)
