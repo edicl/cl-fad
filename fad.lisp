@@ -106,7 +106,7 @@ and CCL."
   (let ((wildcard (directory-wildcard dirname)))
     #+:abcl (system::list-directory dirname)
     #+:sbcl (directory wildcard :resolve-symlinks follow-symlinks)
-    #+(or :cmu :scl :dotcl) (directory wildcard)
+    #+(or :cmu :scl :dotcl :amilisp) (directory wildcard)
     #+:lispworks (directory wildcard :link-transparency follow-symlinks)
     #+(or :openmcl :digitool) (directory wildcard :directories t :follow-links follow-symlinks)
     #+:allegro (directory wildcard :directories-are-files nil)
@@ -115,7 +115,7 @@ and CCL."
     #+:cormanlisp (nconc (directory wildcard)
                          (cl::directory-subdirs dirname)))
   #-(or :sbcl :cmu :scl :lispworks :openmcl :allegro :clisp :cormanlisp :ecl :abcl :digitool :clasp
-        :dotcl)
+        :dotcl :amilisp)
   (error "LIST-DIRECTORY not implemented"))
 
 (defun pathname-as-file (pathspec)
@@ -137,7 +137,7 @@ and CCL."
 exists and returns its truename if this is the case, NIL otherwise.
 The truename is returned in `canonical' form, i.e. the truename of a
 directory is returned as if by PATHNAME-AS-DIRECTORY."
-  #+(or :sbcl :lispworks :openmcl :ecl :digitool clasp :dotcl) (probe-file pathspec)
+  #+(or :sbcl :lispworks :openmcl :ecl :digitool clasp :dotcl :amilisp) (probe-file pathspec)
   #+:allegro (or (excl:probe-directory (pathname-as-directory pathspec))
                  (probe-file pathspec))
   #+(or :cmu :scl :abcl) (or (probe-file (pathname-as-directory pathspec))
@@ -152,7 +152,7 @@ directory is returned as if by PATHNAME-AS-DIRECTORY."
                (ignore-errors
                  (probe-file (pathname-as-file pathspec))))
   #-(or :sbcl :cmu :scl :lispworks :openmcl :allegro :clisp :cormanlisp :ecl :abcl :digitool :clasp
-        :dotcl)
+        :dotcl :amilisp)
   (error "FILE-EXISTS-P not implemented"))
 
 (defun directory-exists-p (pathspec)
